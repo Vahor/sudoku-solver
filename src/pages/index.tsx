@@ -80,7 +80,7 @@ const Home: NextPage = () => {
       </Head>
 
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-pink-200 text-5xl font-bold text-center fade-1">
+        <h1 className="text-pink-200 text-4xl md:text-5xl font-bold text-center fade-1">
           Sudoku Solver
         </h1>
 

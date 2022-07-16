@@ -44,7 +44,7 @@ export const Grid = ({ squares, updateSquare }: GridProps) => {
                     return (<div key={i} >
                         {Array(boxPerRow).fill(null).map((_, j) => {
                             return (
-                                <div key={j} className={`h-36 w-36 border border-neutral-400`}/>
+                                <div key={j} className={`h-24 w-24 md:h-36 md:w-36 border border-neutral-400`}/>
                             );
                         })}
                     </div>)

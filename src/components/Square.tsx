@@ -23,11 +23,12 @@ export const Square = ({ value, updateSquare, i, j }: SquareProps) => {
     return (
         <input
             type="number"
+            pattern="\d*"
             value={value || ''}
             min="1"
             max="9"
             onChange={handleChange}
-            className="h-12 w-12 bg-neutral-800 hover:bg-neutral-700 border p-2 fade-2 text-white outline-none border-neutral-600 text-center"
+            className="h-8 w-8 md:h-12 md:w-12 bg-neutral-800 hover:bg-neutral-700 border p-2 fade-2 text-white outline-none border-neutral-600 text-center"
             style={{
                 animationDuration: `${randomAnimationDuration}s!important`,
             }}
