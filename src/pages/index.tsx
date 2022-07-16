@@ -3,7 +3,7 @@ import Head from "next/head";
 import React, { useEffect, useRef } from "react";
 import { Grid } from "../components/Grid";
 import toast, { Toaster } from "react-hot-toast";
-import { size } from "../utils/sudoku";
+import { findUnassignedLocation, size } from "../utils/sudoku";
 import { Vahor } from "../components/Vahor";
 import { Remote, wrap } from "comlink";
 import { SudokuApi } from "../workers/sudoku.worker";
@@ -71,6 +71,35 @@ const Home: NextPage = () => {
     }
   }
 
+
+  const hint = async () => {
+    const loadingToast = toast.loading("Searching...", toastProps);
+    if (!sudokuWorkerApiRef.current) {
+      toast.error("Failed to solve", toastProps);
+      return;
+    }
+
+    const solution = await maxDelay(sudokuWorkerApiRef.current.solveSudoku(squares), 1000, () => {
+      toast.remove(loadingToast);
+      toast.error("No solution found in time", toastProps);
+    });
+
+    toast.remove(loadingToast);
+
+    if (solution) {
+      let i = Math.floor(Math.random() * size);
+      let j = Math.floor(Math.random() * size);
+
+      const newSquares = squares.map(row => [...row]);    
+      newSquares[i]![j] = solution[i]![j]!;
+
+      setSquares(newSquares);
+      toast.success("Found!", toastProps);
+    } else {
+      toast.error("No hint found", toastProps);
+    }
+  }
+
   return (
     <>
       <Head>
@@ -108,6 +137,12 @@ const Home: NextPage = () => {
             Solve
           </button>
 
+          <button
+            className="bg-neutral-800 hover:bg-neutral-700 border p-2 text-white outline-none border-neutral-600 rounded-md"
+            onClick={hint}
+          >
+            Hint
+          </button>
         </div>
 
         <Toaster />

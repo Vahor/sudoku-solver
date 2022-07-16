@@ -2,7 +2,7 @@
 export const values = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 export const size = 9;
 
-const findUnassignedLocation = (squares: number[][]) : [number|null, number|null] => {
+export const findUnassignedLocation = (squares: number[][]): [number | null, number | null] => {
     for (let i = 0; i < squares.length; i++) {
         for (let j = 0; j < squares.length; j++) { // it's a square
             if (!squares[i]![j]) {
@@ -13,7 +13,7 @@ const findUnassignedLocation = (squares: number[][]) : [number|null, number|null
     return [null, null];
 }
 
-const isValid = (squares: number[][], i: number, j: number, value: number) : boolean => {
+const isValid = (squares: number[][], i: number, j: number, value: number): boolean => {
     // check row
     for (let j2 = 0; j2 < squares[i]!.length; j2++) {
         if (squares[i]![j2] === value && j !== j2) {
@@ -40,8 +40,8 @@ const isValid = (squares: number[][], i: number, j: number, value: number) : boo
     return true;
 }
 
-export const solveSudoku = (squares: number[][]) : number[][] | null => {
-    const solve = (squares: number[][]) : number[][] | null => {
+export const solveSudoku = (squares: number[][]): number[][] | null => {
+    const solve = (squares: number[][]): number[][] | null => {
         const [i, j] = findUnassignedLocation(squares);
         if (i === null || j === null) {
             return squares;
@@ -56,7 +56,6 @@ export const solveSudoku = (squares: number[][]) : number[][] | null => {
                 }
             }
         }
-        squares[i]![j] = 0;
         return null;
     }
 
