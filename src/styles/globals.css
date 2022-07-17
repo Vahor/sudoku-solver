@@ -7,17 +7,21 @@ body {
 }
 
 .fade-1 {
-    animation: fadein 1.5s ease forwards;
+    animation: fadein 1s ease forwards;
 }
 
 .fade-2 {
-    animation: fadein 2.5s ease forwards;
+    animation: fadein 2s ease forwards;
+}
+.fade-3 {
+    animation: fadein 3.5s ease forwards;
 }
 
 @keyframes fadein {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -28,4 +32,22 @@ input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+.toggle-bg:after {
+    content: '';
+    @apply absolute top-0.5 left-0.5 bg-white border border-gray-300 rounded-full h-5 w-5 transition shadow-sm;
+}
+
+input:disabled + .toggle-bg {
+    @apply opacity-50;
+}
+
+input:checked + .toggle-bg:after {
+    transform: translateX(100%);
+    @apply border-white;
+}
+
+input:checked + .toggle-bg {
+    @apply bg-pink-600 border-pink-600;
 }

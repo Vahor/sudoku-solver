@@ -1,13 +1,12 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { Grid } from "../components/Grid";
 import toast, { Toaster } from "react-hot-toast";
-import { findUnassignedLocation, size } from "../utils/sudoku";
+import { difficulties, Difficulty, generateEmptySquares, Sudoku } from "../utils/sudoku";
 import { Vahor } from "../components/Vahor";
-import { Remote, wrap } from "comlink";
-import { SudokuApi } from "../workers/sudoku.worker";
-import { maxDelay } from "../utils/maxDelay";
+import { Menu } from "../components/Menu";
+import { Button } from "../components/Button";
 
 const toastProps = {
   style: {
@@ -21,84 +20,105 @@ const toastProps = {
 }
 
 
-
 const Home: NextPage = () => {
-  const sudokuWorkerRef = React.useRef<Worker>();
-  const sudokuWorkerApiRef = React.useRef<Remote<SudokuApi>>();
+  const sudoku = React.useMemo(() => new Sudoku(generateEmptySquares()), []);
+  const [squares, setSquares] = React.useState<number[][]>(() => sudoku.getSquares());
+  const [initial, setInitial] = React.useState<[number, number][]>(() => []);
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [animate, setAnimate] = React.useState<boolean>(false);
 
-  useEffect(() => {
-    sudokuWorkerRef.current = new Worker(new URL('../workers/sudoku.worker', import.meta.url), {
-      type: "module",
-    })
-    sudokuWorkerApiRef.current = wrap<SudokuApi>(
-      sudokuWorkerRef.current
-    );
-
-    return () => {
-      sudokuWorkerRef.current?.terminate();
-    }
-  }, [])
-
-  const [squares, setSquares] = React.useState<number[][]>(() => Array(size).fill(Array(size).fill(null)));
-
-  const updateSquare = (i: number, j: number, value: number) => {
+  const updateSquare = (i: number, j: number, value: number, withSudoku: boolean = true) => {
     setSquares(squares => {
       const newSquares = squares.map(row => [...row]);
       newSquares[i]![j] = value;
+      if(withSudoku) {
+        sudoku.setSquares(newSquares);
+      }
       return newSquares;
     });
   }
 
-  const solve = async () => {
-    const loadingToast = toast.loading("Solving...", toastProps);
-    if (!sudokuWorkerApiRef.current) {
-      toast.error("Failed to solve", toastProps);
-      return;
-    }
+  const updateSquareAnimation = (i: number, j: number, value: number) => updateSquare(i, j, value, false);
 
-    const solution = await maxDelay(sudokuWorkerApiRef.current.solveSudoku(squares), 1000, () => {
-      toast.remove(loadingToast);
-      toast.error("No solution found in time", toastProps);
-    });
+  const reset = () => {
+    setLoading(true);
+    const newSquares = generateEmptySquares(9);
+    setSquares(() => newSquares);
+    setInitial([]);
+    sudoku.setSquares(newSquares);
+    setLoading(false);
+  }
+
+  const solve = async () => {
+    if (loading) return;
+
+    const loadingToast = toast.loading("Solving...", toastProps);
+
+    setLoading(true);
+    const solution = await sudoku.solve(animate ? updateSquareAnimation : undefined);
+    setLoading(false);
 
     toast.remove(loadingToast);
 
     if (solution) {
-      setSquares(solution);
+      setSquares(() => solution.map(row => [...row]));
       toast.success("Solved!", toastProps);
     } else {
       toast.error("No solution found", toastProps);
     }
   }
 
-
   const hint = async () => {
+    if (loading) return;
+
     const loadingToast = toast.loading("Searching...", toastProps);
-    if (!sudokuWorkerApiRef.current) {
-      toast.error("Failed to solve", toastProps);
-      return;
-    }
 
-    const solution = await maxDelay(sudokuWorkerApiRef.current.solveSudoku(squares), 1000, () => {
+    setLoading(true);
+    try {
+      sudoku.fillOneSquare(updateSquareAnimation);
       toast.remove(loadingToast);
-      toast.error("No solution found in time", toastProps);
-    });
-
-    toast.remove(loadingToast);
-
-    if (solution) {
-      let i = Math.floor(Math.random() * size);
-      let j = Math.floor(Math.random() * size);
-
-      const newSquares = squares.map(row => [...row]);    
-      newSquares[i]![j] = solution[i]![j]!;
-
-      setSquares(newSquares);
       toast.success("Found!", toastProps);
-    } else {
+    } catch (error) {
       toast.error("No hint found", toastProps);
+    } finally {
+      toast.remove(loadingToast);
+      setLoading(false);
     }
   }
+
+  const generate = async (difficulty: Difficulty) => {
+    if (loading) return;
+
+    const loadingToast = toast.loading("Generating...", toastProps);
+    try {
+
+      setLoading(true);
+      setInitial([]);
+      await sudoku.generate(difficulty).catch(() => {
+        toast.error("Error generating", toastProps);
+      });
+      setLoading(false);
+      toast.remove(loadingToast);
+
+      setSquares(() => sudoku.getSquares().map(row => [...row]));
+      const newInitial: [number, number][] = [];
+      sudoku.getSquares().forEach((row, i) => {
+        row.forEach((value, j) => {
+          if (value) {
+            newInitial.push([i, j]);
+          }
+        });
+      }
+      );
+      setInitial(newInitial);
+      toast.success("Generated!", toastProps);
+    } finally {
+      toast.remove(loadingToast);
+      setLoading(false);
+    }
+  }
+
+
 
   return (
     <>
@@ -117,32 +137,68 @@ const Home: NextPage = () => {
           <Grid
             squares={squares}
             updateSquare={updateSquare}
+            sudoku={sudoku}
+            initial={initial}
+            setInitial={setInitial}
           />
         </div>
 
         <div className="mt-4 flex gap-4 fade-2">
 
-          <button
-            className="bg-neutral-800 hover:bg-neutral-700 border p-2 text-white outline-none border-neutral-600 rounded-md"
-            onClick={() => setSquares(() => Array(size).fill(Array(size).fill(null)))}
+          <Button
+            onClick={reset}
+            disabled={loading}
           >
             Reset
-          </button>
+          </Button>
 
 
-          <button
-            className="bg-neutral-800 hover:bg-neutral-700 border p-2 text-white outline-none border-neutral-600 rounded-md"
-            onClick={solve}
+          <Button onClick={solve}
+            disabled={loading}
           >
             Solve
-          </button>
+          </Button>
 
-          <button
-            className="bg-neutral-800 hover:bg-neutral-700 border p-2 text-white outline-none border-neutral-600 rounded-md"
-            onClick={hint}
+          <Button onClick={hint}
+            disabled={loading}
           >
             Hint
-          </button>
+          </Button>
+
+          <Menu label="Generate"
+            disabled={loading}>
+            {(close) =>
+              <ul>
+                {Object.keys(difficulties).map((difficulty) => {
+                  return (
+                    <li
+                      key={difficulty}
+                      className="p-2 text-white outline-none cursor-pointer hover:bg-neutral-700 capitalize"
+                      onClick={() => {
+                        close();
+                        generate(difficulty as Difficulty);
+                      }}
+                    >
+                      {difficulty}
+                    </li>
+                  )
+                })}
+              </ul>
+            }
+          </Menu>
+        </div>
+
+        <div className="mt-2 fade-3">
+          <label className={`flex items-center relative mb-4 ${loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
+            <input type="checkbox" className="sr-only"
+              checked={animate}
+              disabled={loading}
+              onChange={(e) => setAnimate(e.target.checked)}
+            />
+            <div className="toggle-bg bg-gray-200 border-2 border-gray-200 h-6 w-11 rounded-full"></div>
+            <span className="ml-3 text-pink-300 text-sm font-medium">Animate</span>
+          </label>
+
         </div>
 
         <Toaster />

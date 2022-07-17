@@ -1,25 +1,39 @@
 import React from 'react'
+import { Sudoku } from '../utils/sudoku';
 import { Square } from './Square';
 
 export interface GridProps {
     squares: number[][];
     updateSquare: (i: number, j: number, value: number) => void;
+    sudoku: Sudoku;
+    initial: [number, number][];
+    setInitial: (initial: [number, number][]) => void;
 }
 
-export const Grid = ({ squares, updateSquare }: GridProps) => {
+export const Grid = ({ squares, updateSquare,sudoku,initial, setInitial }: GridProps) => {
 
     const size = squares.length;
     const squaresInABox = Math.floor(Math.sqrt(size));
     const boxPerRow = size / squaresInABox;
 
     const renderSquare = (i: number, j: number) => {
+        const value = squares[i]![j];
         return (
             <Square
                 key={`${i}-${j}`}
-                value={squares[i]![j]}
+                value={value}
                 updateSquare={updateSquare}
                 i={i}
                 j={j}
+                isValid={!value || sudoku.isValid(i, j, value)}
+                isInitial={initial.some(([i2, j2]) => i2 === i && j2 === j)}
+                setInitial={(b: boolean) => {
+                    if (b) {
+                        setInitial([...initial, [i, j]]);
+                    } else {
+                        setInitial(initial.filter(([i2, j2]) => i2 !== i || j2 !== j));
+                    }
+                }}
             />
         );
     }
