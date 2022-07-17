@@ -1,0 +1,1 @@
+export const lerp = (min: number, max: number, t: number) => (1 - t) * min + t * max;

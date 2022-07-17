@@ -27,8 +27,6 @@ export const Square = ({ value, updateSquare, i, j }: SquareProps) => {
         setEdited(!!value);
     }
 
-    const randomAnimationDuration = Math.random() * (3 - 0.1) + 0.1;
-
     return (
         <input
             type="number"
@@ -41,9 +39,6 @@ export const Square = ({ value, updateSquare, i, j }: SquareProps) => {
             ${edited ?
                  "bg-pink-50 hover:bg-pink-100 text-neutral-900":
                  "bg-neutral-800 hover:bg-neutral-700"}`}
-            style={{
-                animationDuration: `${randomAnimationDuration}s!important`,
-            }}
         />
     );
 }

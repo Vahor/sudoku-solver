@@ -1,28 +1,20 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { Grid } from "../components/Grid";
 import toast, { Toaster } from "react-hot-toast";
-import { findUnassignedLocation, size } from "../utils/sudoku";
+import { size } from "../utils/sudoku";
 import { Vahor } from "../components/Vahor";
 import { Remote, wrap } from "comlink";
 import { SudokuApi } from "../workers/sudoku.worker";
 import { maxDelay } from "../utils/maxDelay";
-
-const toastProps = {
-  style: {
-    background: "#262626", // neutral-400
-    color: "#FACEE7", // pink-200
-  },
-  iconTheme: {
-    primary: "#FACEE7",
-    secondary: "#262626",
-  },
-}
-
+import { VideoProcessor } from "../components/VideoProcessor";
+import { toastProps } from "../utils/toast";
 
 
 const Home: NextPage = () => {
+  const [useVideo, setUseVideo] = React.useState(false);
+
   const sudokuWorkerRef = React.useRef<Worker>();
   const sudokuWorkerApiRef = React.useRef<Remote<SudokuApi>>();
 
@@ -90,7 +82,7 @@ const Home: NextPage = () => {
       let i = Math.floor(Math.random() * size);
       let j = Math.floor(Math.random() * size);
 
-      const newSquares = squares.map(row => [...row]);    
+      const newSquares = squares.map(row => [...row]);
       newSquares[i]![j] = solution[i]![j]!;
 
       setSquares(newSquares);
@@ -113,37 +105,63 @@ const Home: NextPage = () => {
           Sudoku Solver
         </h1>
 
-        <div className="mt-4">
-          <Grid
-            squares={squares}
-            updateSquare={updateSquare}
-          />
-        </div>
+        {useVideo ? (
+          <>
+            <VideoProcessor
+            />
 
-        <div className="mt-4 flex gap-4 fade-2">
+            <div className="mt-2">
+              <button
+                className="bg-pink-200 hover:bg-pink-300 border p-2 text-neutral outline-none border-neutral-600 rounded-md"
+                onClick={() => setUseVideo(false)}
+              >
+                Leave Camera
+              </button>
+            </div>
+          </>
+        ) : (
 
-          <button
-            className="bg-neutral-800 hover:bg-neutral-700 border p-2 text-white outline-none border-neutral-600 rounded-md"
-            onClick={() => setSquares(() => Array(size).fill(Array(size).fill(null)))}
-          >
-            Reset
-          </button>
+          <>
+            <div className="mt-4">
+              <Grid
+                squares={squares}
+                updateSquare={updateSquare}
+              />
+            </div>
+
+            <div className="mt-4 flex gap-4 fade-2">
+
+              <button
+                className="bg-neutral-800 hover:bg-neutral-700 border p-2 text-white outline-none border-neutral-600 rounded-md"
+                onClick={() => setSquares(() => Array(size).fill(Array(size).fill(null)))}
+              >
+                Reset
+              </button>
 
 
-          <button
-            className="bg-neutral-800 hover:bg-neutral-700 border p-2 text-white outline-none border-neutral-600 rounded-md"
-            onClick={solve}
-          >
-            Solve
-          </button>
+              <button
+                className="bg-neutral-800 hover:bg-neutral-700 border p-2 text-white outline-none border-neutral-600 rounded-md"
+                onClick={solve}
+              >
+                Solve
+              </button>
 
-          <button
-            className="bg-neutral-800 hover:bg-neutral-700 border p-2 text-white outline-none border-neutral-600 rounded-md"
-            onClick={hint}
-          >
-            Hint
-          </button>
-        </div>
+              <button
+                className="bg-neutral-800 hover:bg-neutral-700 border p-2 text-white outline-none border-neutral-600 rounded-md"
+                onClick={hint}
+              >
+                Hint
+              </button>
+              <button
+                className="bg-pink-200 hover:bg-pink-300 border p-2 text-neutral outline-none border-neutral-600 rounded-md"
+                onClick={() => setUseVideo(true)}
+              >
+                Camera
+              </button>
+            </div>
+
+          </>
+        )}
 
         <Toaster />
         <Vahor />
