@@ -138,24 +138,24 @@ const Home: NextPage = () => {
     <>
       <Head>
         <title>Sudoku - Vahor</title>
-        <meta name="description" content="Sudoku by Vahor" />
+        <meta name="description" content="Play unlimited sudoku games, generate new puzzles whenever you want, and solve them with hints." />
         <link rel="icon" href="/favicon.ico" />
         <meta charSet="utf-8" />
         <meta name="robots" content="index,follow" />
         <meta name="googlebot" content="index,follow" />
         <meta name="theme-color" content="#0e1219" />
         <meta name="color-scheme" content="dark" />
-        <meta name="application-name" content="Sudoku by Vahor" />
+        <meta name="application-name" content="Sudoku - Vahor" />
 
         {/* Twitter */}
         <meta property="twitter:site" content="@Vahor" />
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content="Sudoku by Vahor" />
+        <meta property="twitter:title" content="Sudoku -  Vahor" />
         <meta property="twitter:description" content="Sudoku by Vahor" />
         <meta property="twitter:image" content="https://sudoku.vahor.fr/banner.png" />
 
         {/* Og */}
-        <meta property="og:title" content="Sudoku by Vahor" />
+        <meta property="og:title" content="Sudoku -  Vahor" />
         <meta property="og:description" content="Sudoku by Vahor" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://sudoku.vahor.fr" />
@@ -166,7 +166,7 @@ const Home: NextPage = () => {
         {/* Apple */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-        <meta name="apple-mobile-web-app-title" content="Sudoku by Vahor" />
+        <meta name="apple-mobile-web-app-title" content="Sudoku -  Vahor" />
 
         {/* Windows */}
         <meta name="msapplication-TileColor" content="#0e1219" />
