@@ -193,6 +193,7 @@ const Home: NextPage = () => {
       );
       setInitial(newInitial);
       toast.success("Generated!", toastProps);
+      setSuccess(false);
       setStartedAt(0);
       checkStart();
     })
