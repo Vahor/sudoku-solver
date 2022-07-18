@@ -93,6 +93,10 @@ export class Sudoku {
     }
 
     public updateExists(i: number, j: number, value: number, status: boolean): void {
+        const previousValue = this.squares[i]![j]!;
+        if (previousValue !== 0) {
+            this.updateExists(i, j, previousValue, false);
+        }
         this.existInRow.get(i)!.set(value, status);
         this.existInColumn.get(j)!.set(value, status);
         this.existInBox.get(this.getBoxIndex(i, j))!.set(value, status);
@@ -129,7 +133,7 @@ export class Sudoku {
 
     public async solve(updateSquare?: (i: number, j: number, value: number) => void, startIndex: number = 0): Promise<number[][] | null> {
         if (updateSquare)
-            await sleep(50);
+            await sleep(20);
         const nextEmptySquare = this.getNextEmptySquare();
         if (!nextEmptySquare) {
             return this.squares;
@@ -182,7 +186,7 @@ export class Sudoku {
     }
 
     public async generate(difficulty: Difficulty, _count: number = 0): Promise<void> {
-        if (_count > 5000) {
+        if (_count > 4000) {
             throw new Error('Cannot generate a valid sudoku');
         }
 

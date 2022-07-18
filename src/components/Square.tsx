@@ -37,7 +37,7 @@ export const Square = ({ value, updateSquare, i, j,setInitial,isInitial }: Squar
     return (
         <input
             type="number"
-            pattern="\d"
+            pattern="\d*"
             value={value || ''}
             min="1"
             max="9"

@@ -75,7 +75,7 @@ const Home: NextPage = () => {
 
     setLoading(true);
     try {
-      sudoku.fillOneSquare(updateSquareAnimation);
+      sudoku.fillOneSquare(animate ? updateSquareAnimation : undefined);
       toast.remove(loadingToast);
       toast.success("Found!", toastProps);
     } catch (error) {
