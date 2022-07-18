@@ -138,7 +138,7 @@ const Home: NextPage = () => {
     <>
       <Head>
         <title>Sudoku - Vahor</title>
-        <meta name="description" content="Play unlimited sudoku games, generate new puzzles whenever you want, and solve them with hints. This is one a many projects of Vahor." />
+        <meta name="description" content="Play unlimited sudoku games, generate new puzzles whenever you want, and solve them with hints. This is one the many projects of Vahor." />
         <link rel="icon" href="/favicon.ico" />
         <meta charSet="utf-8" />
         <meta name="robots" content="index,follow" />
