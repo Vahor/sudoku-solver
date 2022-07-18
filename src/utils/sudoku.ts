@@ -12,6 +12,9 @@ export const difficulties = {
     },
     extreme: {
         empty: 65,
+    },
+    impossible: {
+        empty: 72,
     }
 }
 
@@ -283,6 +286,8 @@ export class Sudoku {
             // Fill empty squares
             for (let i = 0; i < toAdd; i++) {
                 const value = neededValues.pop();
+                console.log(value);
+                console.log(neededValues);
                 await this.fillOneSquare(false, value);
             }
             const squaresCopy = this.squares.map(row => [...row]);
