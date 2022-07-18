@@ -57,7 +57,7 @@ const Home: NextPage = () => {
     const loadingToast = toast.loading("Solving...", toastProps);
 
     setLoading(true);
-    const solution = await sudoku.solve(updateSquareAnimation);
+    const solution = await sudoku.solve(animate ? updateSquareAnimation : undefined );
     setLoading(false);
 
     toast.remove(loadingToast);
@@ -75,7 +75,7 @@ const Home: NextPage = () => {
 
     const loadingToast = toast.loading("Searching...", toastProps);
     setLoading(true);
-    await sleep(250);
+    await sleep(200);
 
     try {
       const [i, j, value] = await sudoku.fillOneSquare();
@@ -112,13 +112,13 @@ const Home: NextPage = () => {
       setInitial(newInitial);
       toast.success("Generated!", toastProps);
     })
-    .catch(() => {
-      toast.remove(loadingToast);
-      toast.error("Error generating", toastProps);
-    }).then(() => {
-      setLoading(false);
-      toast.remove(loadingToast);
-    });
+      .catch(() => {
+        toast.remove(loadingToast);
+        toast.error("Error generating", toastProps);
+      }).then(() => {
+        setLoading(false);
+        toast.remove(loadingToast);
+      });
   }
   useEffect(() => {
     // On keyboard click 'H', run hint
@@ -137,14 +137,51 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Sudoku Solver - Vahor</title>
-        <meta name="description" content="Sudoku solver by Vahor" />
+        <title>Sudoku - Vahor</title>
+        <meta name="description" content="Sudoku by Vahor" />
         <link rel="icon" href="/favicon.ico" />
+        <meta charSet="utf-8" />
+        <meta name="robots" content="index,follow" />
+        <meta name="googlebot" content="index,follow" />
+        <meta name="theme-color" content="#0e1219" />
+        <meta name="color-scheme" content="dark" />
+        <meta name="application-name" content="Sudoku by Vahor" />
+
+        {/* Twitter */}
+        <meta property="twitter:site" content="@Vahor" />
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:title" content="Sudoku by Vahor" />
+        <meta property="twitter:description" content="Sudoku by Vahor" />
+        <meta property="twitter:image" content="https://sudoku.vahor.fr/banner.png" />
+
+        {/* Og */}
+        <meta property="og:title" content="Sudoku by Vahor" />
+        <meta property="og:description" content="Sudoku by Vahor" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://sudoku.vahor.fr" />
+        <meta property="og:image" content="https://sudoku.vahor.fr/banner.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+
+        {/* Apple */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <meta name="apple-mobile-web-app-title" content="Sudoku by Vahor" />
+
+        {/* Windows */}
+        <meta name="msapplication-TileColor" content="#0e1219" />
+        <meta name="msapplication-TileImage" content="/mstile-144x144.png" />
+
+        {/* Android */}
+        <meta name="mobile-web-app-capable" content="yes" />
+
+
       </Head>
+
 
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1 className="text-pink-200 text-4xl md:text-5xl font-bold text-center fade-1">
-          Sudoku Solver
+          Sudoku
         </h1>
 
         <div className="mt-4">
@@ -156,7 +193,7 @@ const Home: NextPage = () => {
           />
         </div>
 
-        <div className="mt-4 flex gap-4 fade-2">
+        <div className="mt-2 md:mt-4 flex gap-4 fade-2">
 
           <Button
             onClick={reset}
@@ -186,7 +223,7 @@ const Home: NextPage = () => {
                   return (
                     <li
                       key={difficulty}
-                      className="p-2 text-white outline-none cursor-pointer hover:bg-neutral-700 capitalize"
+                      className="p-2 text-white outline-none cursor-pointer hover:bg-secondary-700 capitalize"
                       onClick={() => {
                         close();
                         generate(difficulty as Difficulty);

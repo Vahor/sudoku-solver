@@ -20,7 +20,7 @@ export const Menu = ({children,label, ...props}: MenuProps) => {
         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"/>
       </svg>
       </Button>
-        <div className="absolute bottom-full right-0 mb-2 w-56 rounded-md shadow-lg bg-neutral-600 ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <div className="absolute bottom-full right-0 mb-2 w-56 rounded-md shadow-lg bg-secondary-600 ring-1 ring-black ring-opacity-5 focus:outline-none">
         {open && children(close)}
         </div>
 

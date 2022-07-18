@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-    @apply antialiased bg-neutral-900;
+    @apply antialiased bg-secondary-800;
 }
 
 .fade-1 {
