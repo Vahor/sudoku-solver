@@ -7,6 +7,8 @@ import { difficulties, Difficulty, generateEmptySquares, Sudoku, sleep } from ".
 import { Vahor } from "../components/Vahor";
 import { Menu } from "../components/Menu";
 import { Button } from "../components/Button";
+import confetti from 'canvas-confetti';
+import { Timer } from "../components/Timer";
 
 const toastProps = {
   style: {
@@ -38,11 +40,49 @@ const Home: NextPage = () => {
   const errors = React.useMemo<[number, number][]>(() => sudoku.getErrorsPositions(), [sudoku, squares]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [animate, setAnimate] = React.useState<boolean>(false);
+  const [success, setSuccess] = React.useState<boolean>(false);
   const [showErrors, setShowErrors] = React.useState<boolean>(true);
+  const [startedAt, setStartedAt] = React.useState<number>(0);
+
+  const checkSuccess = useCallback(async () => {
+    if (!sudoku.getRandomEmptySquare() && errors.length === 0) {
+      setLoading(true);
+      setSuccess(true);
+
+      confetti({
+        particleCount: 100,
+        startVelocity: 30,
+        spread: 360,
+        origin: {
+          x: 0.5,
+          // since they fall down, start a bit higher than random
+          y: 0.5 - Math.random() * 0.3,
+        }
+      });
+
+      await sleep(2000);
+
+      setLoading(false);
+
+    }
+  }, [sudoku, errors]);
+  
+  useEffect(() => {
+    checkSuccess();
+  } , [checkSuccess, errors]);
+
+  const checkStart = useCallback(async () => {
+    if(startedAt === 0)
+      setStartedAt(Date.now());
+  }
+  , [startedAt]);
+
+
 
   const updateSquare = useCallback((i: number, j: number, value: number, withSudoku: boolean = true) => {
     if (!value)
       value = 0;
+    checkStart();
     setSquares(squares => {
       const newSquares = squares.map(row => [...row]);
       newSquares[i]![j] = value;
@@ -51,7 +91,7 @@ const Home: NextPage = () => {
       }
       return newSquares;
     });
-  }, [sudoku]);
+  }, [sudoku, checkStart]);
 
   const updateSquareAnimation = useCallback((i: number, j: number, value: number) => updateSquare(i, j, value, false), [updateSquare]);
 
@@ -61,7 +101,9 @@ const Home: NextPage = () => {
     setSquares(() => newSquares);
     setInitial([]);
     sudoku.setSquares(newSquares);
+    setStartedAt(0);
     setLoading(false);
+    setSuccess(false);
   }
 
   const solve = async () => {
@@ -72,9 +114,9 @@ const Home: NextPage = () => {
     }
 
     const loadingToast = toast.loading("Solving...", toastProps);
-
+    checkStart();
     setLoading(true);
-    const solution = await sudoku.solve(animate ? updateSquareAnimation : undefined );
+    const solution = await sudoku.solve(animate ? updateSquareAnimation : undefined);
     setLoading(false);
 
     toast.remove(loadingToast);
@@ -96,8 +138,10 @@ const Home: NextPage = () => {
 
 
     const loadingToast = toast.loading("Searching...", toastProps);
+
+    checkStart();
     setLoading(true);
-    await sleep(200);
+    await sleep(150);
 
     try {
       const [i, j, value] = await sudoku.fillOneSquare();
@@ -111,7 +155,7 @@ const Home: NextPage = () => {
       toast.remove(loadingToast);
       setLoading(false);
     }
-  }, [loading, sudoku, setInitial, updateSquare, errors])
+  }, [loading, sudoku, setInitial, updateSquare, errors, checkStart]);
 
   const generate = async (difficulty: Difficulty) => {
     if (loading) return;
@@ -133,6 +177,8 @@ const Home: NextPage = () => {
       );
       setInitial(newInitial);
       toast.success("Generated!", toastProps);
+      setStartedAt(0);
+      checkStart();
     })
       .catch(() => {
         toast.remove(loadingToast);
@@ -142,6 +188,7 @@ const Home: NextPage = () => {
         toast.remove(loadingToast);
       });
   }
+
   useEffect(() => {
     // On keyboard click 'H', run hint
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -207,10 +254,13 @@ const Home: NextPage = () => {
 
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1 className="text-pink-200 text-4xl md:text-5xl font-bold text-center fade-1">
-          Sudoku
+          {success ? "Congratulations!" : "Sudoku"}
         </h1>
+        <div className="text-pink-50 fade-2">
+          <Timer startedAt={startedAt} running={!success} />
+        </div>
 
-        <div className="mt-4">
+      <div className={`mt-4 md:mt-8 ${(loading||success) ? "pointer-events-none" : ""}`}>
           <Grid
             squares={squares}
             updateSquare={updateSquare}
