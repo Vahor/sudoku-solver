@@ -77,7 +77,8 @@ const Home: NextPage = () => {
 
     setLoading(true);
     try {
-      sudoku.fillOneSquare(updateSquareAnimation);
+      const newSquare = await sudoku.fillOneSquare(updateSquareAnimation);
+      setInitial((initial) => [...initial, newSquare]);
       toast.remove(loadingToast);
       toast.success("Found!", toastProps);
     } catch (error) {
@@ -86,7 +87,7 @@ const Home: NextPage = () => {
       toast.remove(loadingToast);
       setLoading(false);
     }
-  }, [loading, updateSquareAnimation, sudoku])
+  }, [loading, updateSquareAnimation, sudoku, setInitial])
 
   const generate = async (difficulty: Difficulty) => {
     if (loading) return;
@@ -150,7 +151,6 @@ const Home: NextPage = () => {
             updateSquare={updateSquare}
             sudoku={sudoku}
             initial={initial}
-            setInitial={setInitial}
           />
         </div>
 
@@ -211,6 +211,16 @@ const Home: NextPage = () => {
           </label>
 
         </div>
+
+        {/* <pre className="text-center text-gray-500 text-xs mt-4">
+          {sudoku.getSquares().map((row, i) => {
+            return row.map((value, j) => {
+              return value ? value : ".";
+            }
+            ).join(" ");
+          }
+          ).join("\n")}
+        </pre> */}
 
         <Toaster />
         <Vahor />
