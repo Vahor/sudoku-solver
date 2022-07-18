@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
 export interface SquareProps {
     value: number | undefined;
