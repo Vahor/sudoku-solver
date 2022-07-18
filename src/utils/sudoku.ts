@@ -225,7 +225,6 @@ export class Sudoku {
         if (Date.now() - _start_date > time_limit) {
             this.setSquares(generateEmptySquares(this.squares.length));
             throw new Error('Time limit exceeded');
-        }
 
         try {
             const totalSquares = this.squares.length * this.squares.length;
