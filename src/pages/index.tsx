@@ -7,6 +7,7 @@ import { difficulties, Difficulty, generateEmptySquares, Sudoku, sleep } from ".
 import { Vahor } from "../components/Vahor";
 import { Menu } from "../components/Menu";
 import { Button } from "../components/Button";
+import confetti from 'canvas-confetti';
 
 const toastProps = {
   style: {
@@ -38,7 +39,35 @@ const Home: NextPage = () => {
   const errors = React.useMemo<[number, number][]>(() => sudoku.getErrorsPositions(), [sudoku, squares]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [animate, setAnimate] = React.useState<boolean>(false);
+  const [success, setSuccess] = React.useState<boolean>(false);
   const [showErrors, setShowErrors] = React.useState<boolean>(true);
+
+  const checkSuccess = useCallback(async () => {
+    if (!sudoku.getRandomEmptySquare() && errors.length === 0) {
+      setLoading(true);
+      setSuccess(true);
+
+      confetti({
+        particleCount: 100,
+        startVelocity: 30,
+        spread: 360,
+        origin: {
+          x: 0.5,
+          // since they fall down, start a bit higher than random
+          y: 0.5 - Math.random() * 0.3,
+        }
+      });
+
+      await sleep(2000);
+
+      setLoading(false);
+
+    }
+  }, [sudoku, errors]);
+  
+  useEffect(() => {
+    checkSuccess();
+  } , [checkSuccess, errors]);
 
   const updateSquare = useCallback((i: number, j: number, value: number, withSudoku: boolean = true) => {
     if (!value)
@@ -62,6 +91,7 @@ const Home: NextPage = () => {
     setInitial([]);
     sudoku.setSquares(newSquares);
     setLoading(false);
+    setSuccess(false);
   }
 
   const solve = async () => {
@@ -74,7 +104,7 @@ const Home: NextPage = () => {
     const loadingToast = toast.loading("Solving...", toastProps);
 
     setLoading(true);
-    const solution = await sudoku.solve(animate ? updateSquareAnimation : undefined );
+    const solution = await sudoku.solve(animate ? updateSquareAnimation : undefined);
     setLoading(false);
 
     toast.remove(loadingToast);
@@ -97,7 +127,7 @@ const Home: NextPage = () => {
 
     const loadingToast = toast.loading("Searching...", toastProps);
     setLoading(true);
-    await sleep(200);
+    await sleep(150);
 
     try {
       const [i, j, value] = await sudoku.fillOneSquare();
@@ -111,7 +141,7 @@ const Home: NextPage = () => {
       toast.remove(loadingToast);
       setLoading(false);
     }
-  }, [loading, sudoku, setInitial, updateSquare, errors])
+  }, [loading, sudoku, setInitial, updateSquare, errors]);
 
   const generate = async (difficulty: Difficulty) => {
     if (loading) return;
@@ -207,10 +237,10 @@ const Home: NextPage = () => {
 
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1 className="text-pink-200 text-4xl md:text-5xl font-bold text-center fade-1">
-          Sudoku
+          {success ? "Congratulations!" : "Sudoku"}
         </h1>
 
-        <div className="mt-4">
+        <div className={`mt-4 md:mt-8 ${(loading||success) ? "pointer-events-none" : ""}`}>
           <Grid
             squares={squares}
             updateSquare={updateSquare}
