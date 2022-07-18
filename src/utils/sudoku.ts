@@ -168,7 +168,7 @@ export class Sudoku {
         if (!_start_date) 
             _start_date = Date.now();
         
-        const time_limit = updateSquare ? 15_000 : 3000; // 3 seconds
+        const time_limit = updateSquare ? 25_000 : 5000; // 5 seconds
         if (Date.now() - _start_date > time_limit) {
             return null;
         }
@@ -271,7 +271,7 @@ export class Sudoku {
         if (!_start_date) 
             _start_date = Date.now();
         
-        const time_limit = 4000; // 4 seconds
+        const time_limit = 5000; // 5 seconds
         if (Date.now() - _start_date > time_limit) {
             this.setSquares(generateEmptySquares(this.squares.length));
             throw new Error('Time limit exceeded');

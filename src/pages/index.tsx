@@ -71,12 +71,18 @@ const Home: NextPage = () => {
     checkSuccess();
   } , [checkSuccess, errors]);
 
+  const checkStart = useCallback(async () => {
+    if(startedAt === 0)
+      setStartedAt(Date.now());
+  }
+  , [startedAt]);
+
+
 
   const updateSquare = useCallback((i: number, j: number, value: number, withSudoku: boolean = true) => {
     if (!value)
       value = 0;
-    if(startedAt === 0)
-      setStartedAt(Date.now());
+    checkStart();
     setSquares(squares => {
       const newSquares = squares.map(row => [...row]);
       newSquares[i]![j] = value;
@@ -85,7 +91,7 @@ const Home: NextPage = () => {
       }
       return newSquares;
     });
-  }, [sudoku, startedAt]);
+  }, [sudoku, checkStart]);
 
   const updateSquareAnimation = useCallback((i: number, j: number, value: number) => updateSquare(i, j, value, false), [updateSquare]);
 
@@ -108,7 +114,7 @@ const Home: NextPage = () => {
     }
 
     const loadingToast = toast.loading("Solving...", toastProps);
-
+    checkStart();
     setLoading(true);
     const solution = await sudoku.solve(animate ? updateSquareAnimation : undefined);
     setLoading(false);
@@ -132,6 +138,8 @@ const Home: NextPage = () => {
 
 
     const loadingToast = toast.loading("Searching...", toastProps);
+
+    checkStart();
     setLoading(true);
     await sleep(150);
 
@@ -147,7 +155,7 @@ const Home: NextPage = () => {
       toast.remove(loadingToast);
       setLoading(false);
     }
-  }, [loading, sudoku, setInitial, updateSquare, errors]);
+  }, [loading, sudoku, setInitial, updateSquare, errors, checkStart]);
 
   const generate = async (difficulty: Difficulty) => {
     if (loading) return;
@@ -169,6 +177,8 @@ const Home: NextPage = () => {
       );
       setInitial(newInitial);
       toast.success("Generated!", toastProps);
+      setStartedAt(0);
+      checkStart();
     })
       .catch(() => {
         toast.remove(loadingToast);
@@ -178,6 +188,7 @@ const Home: NextPage = () => {
         toast.remove(loadingToast);
       });
   }
+
   useEffect(() => {
     // On keyboard click 'H', run hint
     const handleKeyDown = (e: KeyboardEvent) => {
