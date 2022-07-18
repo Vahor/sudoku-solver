@@ -32,6 +32,8 @@ const Home: NextPage = () => {
   const sudoku = React.useMemo(() => new Sudoku(generateEmptySquares()), []);
   const [squares, setSquares] = React.useState<number[][]>(() => sudoku.getSquares());
   const [initial, setInitial] = React.useState<[number, number][]>(() => []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const errors = React.useMemo<[number, number][]>(() => sudoku.getErrorsPositions(), [sudoku, squares]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [animate, setAnimate] = React.useState<boolean>(false);
 
@@ -61,6 +63,10 @@ const Home: NextPage = () => {
 
   const solve = async () => {
     if (loading) return;
+    if (errors.length !== 0) {
+      toast.error("There are errors in the puzzle", toastProps);
+      return;
+    }
 
     const loadingToast = toast.loading("Solving...", toastProps);
 
@@ -80,6 +86,11 @@ const Home: NextPage = () => {
 
   const hint = useCallback(async () => {
     if (loading) return;
+    if (errors.length !== 0) {
+      toast.error("There are errors in the puzzle", toastProps);
+      return;
+    }
+
 
     const loadingToast = toast.loading("Searching...", toastProps);
     setLoading(true);
@@ -97,7 +108,7 @@ const Home: NextPage = () => {
       toast.remove(loadingToast);
       setLoading(false);
     }
-  }, [loading, sudoku, setInitial, updateSquare])
+  }, [loading, sudoku, setInitial, updateSquare, errors])
 
   const generate = async (difficulty: Difficulty) => {
     if (loading) return;
@@ -202,6 +213,7 @@ const Home: NextPage = () => {
             updateSquare={updateSquare}
             sudoku={sudoku}
             initial={initial}
+            errors={errors}
           />
         </div>
 

@@ -7,9 +7,10 @@ export interface GridProps {
     updateSquare: (i: number, j: number, value: number) => void;
     sudoku: Sudoku;
     initial: [number, number][];
+    errors: [number, number][];
 }
 
-export const Grid = ({ squares, updateSquare, sudoku,initial }: GridProps) => {
+export const Grid = ({ squares, updateSquare, sudoku,initial,errors }: GridProps) => {
 
     const size = squares.length;
     const squaresInABox = Math.floor(Math.sqrt(size));
@@ -24,7 +25,7 @@ export const Grid = ({ squares, updateSquare, sudoku,initial }: GridProps) => {
                 updateSquare={updateSquare}
                 i={i}
                 j={j}
-                isValid={!value || sudoku.isValid(i, j, value)}
+                isValid={!errors.some(([x, y]) => x === i && y === j)}
                 isInitial={initial.some(([i2, j2]) => i2 === i && j2 === j)}
             />
         );

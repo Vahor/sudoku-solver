@@ -156,7 +156,7 @@ export class Sudoku {
         if (!_start_date) 
             _start_date = Date.now();
         
-        const time_limit = updateSquare ? 10_000 : 3000; // 3 seconds
+        const time_limit = updateSquare ? 15_000 : 3000; // 3 seconds
         if (Date.now() - _start_date > time_limit) {
             return null;
         }
@@ -199,6 +199,48 @@ export class Sudoku {
         }
         return null;
     }
+
+    public getErrorsPositions(): [number, number][] {
+        // Find all errors, there is an error if a value is present more than once in a row, column or box.
+        const errors:[number, number][] = [];
+        
+        // Count how many times each value appears in a row, column or box.
+        const countInRow = new Map(
+            this.squares.map((_, i) => [i, new Map(values.map(value => [value, 0]))])
+        );
+        const countInColumn = new Map(
+            this.squares.map((_, j) => [j, new Map(values.map(value => [value, 0]))])
+        );
+        const countInBox = new Map(
+            values.map((_, i) => [i, new Map(values.map(value => [value, 0]))])
+        );
+
+        // For values in squares, check if it exists in row, column, box. If it does, set to true.
+        for (let i = 0; i < this.squares.length; i++) {
+            for (let j = 0; j < this.squares.length; j++) {
+                const value = this.squares[i]![j]!;
+                if (value !== 0) {
+                    countInRow.get(i)!.set(value, countInRow.get(i)!.get(value)! + 1);
+                    countInColumn.get(j)!.set(value, countInColumn.get(j)!.get(value)! + 1);
+                    countInBox.get(this.getBoxIndex(i, j))!.set(value, countInBox.get(this.getBoxIndex(i, j))!.get(value)! + 1);
+                }
+            }
+        }
+        // Find all errors
+        for (let i = 0; i < this.squares.length; i++) {
+            for (let j = 0; j < this.squares.length; j++) {
+                const value = this.squares[i]![j]!;
+                if (value !== 0) {
+                    if (countInRow.get(i)!.get(value)! > 1 || countInColumn.get(j)!.get(value)! > 1 || countInBox.get(this.getBoxIndex(i, j))!.get(value)! > 1) {
+                        errors.push([i, j]);
+                    }
+                }
+            }
+        }
+        return errors;
+    }
+
+
 
     public getSquares(): number[][] {
         return this.squares;
