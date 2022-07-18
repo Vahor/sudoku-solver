@@ -28,6 +28,8 @@ const Home: NextPage = () => {
   const [animate, setAnimate] = React.useState<boolean>(false);
 
   const updateSquare = useCallback((i: number, j: number, value: number, withSudoku: boolean = true) => {
+    if (!value) 
+      value = 0;
     setSquares(squares => {
       const newSquares = squares.map(row => [...row]);
       newSquares[i]![j] = value;

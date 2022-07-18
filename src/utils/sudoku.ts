@@ -93,10 +93,6 @@ export class Sudoku {
     }
 
     public updateExists(i: number, j: number, value: number, status: boolean): void {
-        const previousValue = this.squares[i]![j]!;
-        if (previousValue !== 0 && previousValue !== value) {
-            this.updateExists(i, j, previousValue, false);
-        }
         this.existInRow.get(i)!.set(value, status);
         this.existInColumn.get(j)!.set(value, status);
         this.existInBox.get(this.getBoxIndex(i, j))!.set(value, status);
@@ -178,7 +174,7 @@ export class Sudoku {
 
     public setSquare(i: number, j: number, value: number): void {
         // If value is not in values, set to 0.
-        if (!values.includes(value)) {
+        if (!value || !values.includes(value)) {
             value = 0;
         }
         this.squares[i]![j] = value;
