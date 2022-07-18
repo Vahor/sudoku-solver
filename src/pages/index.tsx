@@ -169,6 +169,7 @@ const Home: NextPage = () => {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={meta.url} />
         <meta property="og:image" content={meta.image} />
+
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
 
