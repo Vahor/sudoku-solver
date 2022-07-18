@@ -39,7 +39,7 @@ export const Square = ({ value, updateSquare, i, j,isInitial }: SquareProps) => 
             className={`h-8 w-8 md:h-12 md:w-12  border p-2 fade-2 text-white outline-none border-neutral-600 text-center 
             ${isInitial ?
                  "bg-neutral-100 hover:bg-neutral-200 text-neutral-900":
-                 "font-bold bg-neutral-800 text-neutral-100"}`
+                 "font-bold bg-neutral-800 text-neutral-100 hover:bg-neutral-900"}`
                 }
             style={{
                 animationDuration: `${randomAnimationDuration}s!important`,
