@@ -118,7 +118,7 @@ const Home: NextPage = () => {
   }
 
   const solve = async () => {
-    if (loading) return;
+    if (loading || success) return;
     if (errors.length !== 0) {
       toast.error("There are errors in the puzzle", toastProps);
       return;
@@ -141,7 +141,7 @@ const Home: NextPage = () => {
   }
 
   const hint = useCallback(async () => {
-    if (loading) return;
+    if (loading||success) return;
     if (errors.length !== 0) {
       toast.error("There are errors in the puzzle", toastProps);
       return;
@@ -166,7 +166,7 @@ const Home: NextPage = () => {
       toast.remove(loadingToast);
       setLoading(false);
     }
-  }, [loading, sudoku, setInitial, updateSquare, errors, checkStart]);
+  }, [loading, sudoku, setInitial, updateSquare, errors, checkStart,success]);
 
   const generate = async (difficulty: Difficulty) => {
     if (loading) return;
@@ -292,13 +292,13 @@ const Home: NextPage = () => {
 
 
           <Button onClick={solve}
-            disabled={loading}
+            disabled={loading || success}
           >
             Solve
           </Button>
 
           <Button onClick={hint}
-            disabled={loading}
+            disabled={loading || success}
           >
             <u>H</u>int
           </Button>
