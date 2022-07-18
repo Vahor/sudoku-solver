@@ -67,14 +67,10 @@ const Home: NextPage = () => {
       setLoading(false);
 
       const timer = Date.now() - startedAt;
-
-      if (timer > 20_000) {
-        // I suppose that less than 20 seconds is not a success, just someone trying features
-        event("success", {
-          category: "sudoku",
-          value: timer,
-        });
-      }
+      event("success", {
+        category: "sudoku",
+        value: timer,
+      });
 
     }
   }, [sudoku, errors, startedAt]);
@@ -83,8 +79,8 @@ const Home: NextPage = () => {
     checkSuccess();
   } , [checkSuccess, errors]);
 
-  const checkStart = useCallback(async () => {
-    if(startedAt === 0) {
+  const checkStart = useCallback(async (force: boolean = false) => {
+    if(force || startedAt === 0) {
       setStartedAt(Date.now());
       event("start", {
         category: "sudoku",
@@ -193,14 +189,12 @@ const Home: NextPage = () => {
       );
       setInitial(newInitial);
       toast.success("Generated!", toastProps);
-      setSuccess(false);
-      setStartedAt(0);
-      checkStart();
+      checkStart(true);
     })
       .catch(() => {
-        toast.remove(loadingToast);
         toast.error("Error generating", toastProps);
       }).then(() => {
+        setSuccess(false);
         setLoading(false);
         toast.remove(loadingToast);
       });
