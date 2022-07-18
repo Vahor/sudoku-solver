@@ -66,9 +66,10 @@ const Home: NextPage = () => {
 
       setLoading(false);
 
+      const timer = Date.now() - startedAt;
       event("success", {
         category: "sudoku",
-        value: Date.now() - startedAt,
+        value: timer,
       });
 
     }
@@ -78,8 +79,8 @@ const Home: NextPage = () => {
     checkSuccess();
   } , [checkSuccess, errors]);
 
-  const checkStart = useCallback(async () => {
-    if(startedAt === 0) {
+  const checkStart = useCallback(async (force: boolean = false) => {
+    if(force || startedAt === 0) {
       setStartedAt(Date.now());
       event("start", {
         category: "sudoku",
@@ -118,7 +119,7 @@ const Home: NextPage = () => {
   }
 
   const solve = async () => {
-    if (loading) return;
+    if (loading || success) return;
     if (errors.length !== 0) {
       toast.error("There are errors in the puzzle", toastProps);
       return;
@@ -141,7 +142,7 @@ const Home: NextPage = () => {
   }
 
   const hint = useCallback(async () => {
-    if (loading) return;
+    if (loading||success) return;
     if (errors.length !== 0) {
       toast.error("There are errors in the puzzle", toastProps);
       return;
@@ -166,7 +167,7 @@ const Home: NextPage = () => {
       toast.remove(loadingToast);
       setLoading(false);
     }
-  }, [loading, sudoku, setInitial, updateSquare, errors, checkStart]);
+  }, [loading, sudoku, setInitial, updateSquare, errors, checkStart,success]);
 
   const generate = async (difficulty: Difficulty) => {
     if (loading) return;
@@ -188,13 +189,12 @@ const Home: NextPage = () => {
       );
       setInitial(newInitial);
       toast.success("Generated!", toastProps);
-      setStartedAt(0);
-      checkStart();
+      checkStart(true);
     })
       .catch(() => {
-        toast.remove(loadingToast);
         toast.error("Error generating", toastProps);
       }).then(() => {
+        setSuccess(false);
         setLoading(false);
         toast.remove(loadingToast);
       });
@@ -292,13 +292,13 @@ const Home: NextPage = () => {
 
 
           <Button onClick={solve}
-            disabled={loading}
+            disabled={loading || success}
           >
             Solve
           </Button>
 
           <Button onClick={hint}
-            disabled={loading}
+            disabled={loading || success}
           >
             <u>H</u>int
           </Button>
