@@ -19,6 +19,14 @@ const toastProps = {
   },
 }
 
+const meta = {
+  title: "Sudoku - Vahor",
+  description: "Play unlimited sudoku games, generate new puzzles whenever you want, and solve them with hints. This is one the many projects of Vahor.",
+  image: "https://sudoku.vahor.fr/banner.png",
+  url: "https://sudoku.vahor.fr",
+  twitterUsername: "@Vahor_",
+}
+
 
 const Home: NextPage = () => {
   const sudoku = React.useMemo(() => new Sudoku(generateEmptySquares()), []);
@@ -137,40 +145,43 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Sudoku - Vahor</title>
-        <meta name="description" content="Play unlimited sudoku games, generate new puzzles whenever you want, and solve them with hints. This is one the many projects of Vahor." />
+        <title>{meta.title}</title>
+        <meta name="description" content={meta.description} />
         <link rel="icon" href="/favicon.ico" />
         <meta charSet="utf-8" />
         <meta name="robots" content="index,follow" />
         <meta name="googlebot" content="index,follow" />
         <meta name="theme-color" content="#0e1219" />
         <meta name="color-scheme" content="dark" />
-        <meta name="application-name" content="Sudoku - Vahor" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
 
         {/* Twitter */}
-        <meta property="twitter:site" content="@Vahor" />
+        <meta property="twitter:site" content={meta.twitterUsername} />
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content="Sudoku -  Vahor" />
-        <meta property="twitter:description" content="Sudoku by Vahor" />
-        <meta property="twitter:image" content="https://sudoku.vahor.fr/banner.png" />
+        <meta property="twitter:title" content={meta.title} />
+        <meta property="twitter:description" content={meta.description} />
+        <meta property="twitter:image" content={meta.image} />
 
         {/* Og */}
-        <meta property="og:title" content="Sudoku -  Vahor" />
-        <meta property="og:description" content="Sudoku by Vahor" />
+        <meta property="og:title" content={meta.title} />
+        <meta property="og:description" content={meta.description} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://sudoku.vahor.fr" />
-        <meta property="og:image" content="https://sudoku.vahor.fr/banner.png" />
+        <meta property="og:url" content={meta.url} />
+        <meta property="og:image" content={meta.image} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
 
         {/* Apple */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-        <meta name="apple-mobile-web-app-title" content="Sudoku -  Vahor" />
+        <meta name="apple-mobile-web-app-title" content={meta.title} />
 
         {/* Windows */}
         <meta name="msapplication-TileColor" content="#0e1219" />
         <meta name="msapplication-TileImage" content="/mstile-144x144.png" />
+        <meta name="application-name" content={meta.title} />
+        <meta name="msapplication-tooltip" content={meta.description} />
 
         {/* Android */}
         <meta name="mobile-web-app-capable" content="yes" />
