@@ -94,7 +94,7 @@ export class Sudoku {
 
     public updateExists(i: number, j: number, value: number, status: boolean): void {
         const previousValue = this.squares[i]![j]!;
-        if (previousValue !== 0) {
+        if (previousValue !== 0 && previousValue !== value) {
             this.updateExists(i, j, previousValue, false);
         }
         this.existInRow.get(i)!.set(value, status);
@@ -103,7 +103,8 @@ export class Sudoku {
         if (status) {
             this.emptySquares = this.emptySquares.filter(([x, y]) => x !== i || y !== j);
         } else {
-            this.emptySquares.push([i, j]);
+            // add in front
+            this.emptySquares.unshift([i, j]);
         }
     }
 
@@ -133,7 +134,8 @@ export class Sudoku {
 
     public async solve(updateSquare?: (i: number, j: number, value: number) => void, startIndex: number = 0): Promise<number[][] | null> {
         if (updateSquare)
-            await sleep(20);
+            await sleep(1);
+
         const nextEmptySquare = this.getNextEmptySquare();
         if (!nextEmptySquare) {
             return this.squares;
@@ -146,7 +148,6 @@ export class Sudoku {
         for (let k = 0; k < startIndex; k++) {
             possibleValues.push(possibleValues.shift()!);
         }
-
 
         for (const value of possibleValues) {
             if (this.isValid(i, j, value)) {
@@ -161,7 +162,6 @@ export class Sudoku {
                 }
 
                 // backtrack
-
                 this.squares[i]![j] = 0;
                 this.updateExists(i, j, value, false);
 
@@ -186,7 +186,7 @@ export class Sudoku {
     }
 
     public async generate(difficulty: Difficulty, _count: number = 0): Promise<void> {
-        if (_count > 4000) {
+        if (_count > 1000) {
             throw new Error('Cannot generate a valid sudoku');
         }
 
@@ -203,15 +203,14 @@ export class Sudoku {
 
             const solution = await this.solve();
             if (!solution) {
-                await this.generate(difficulty, _count + 1);
-                return;
+                return await this.generate(difficulty, _count + 1);
             }
 
             // If everything is ok, set the solution to the squares
             this.setSquares(squaresCopy);
             
         } catch (e) {
-            await this.generate(difficulty, _count + 1);
+            return await this.generate(difficulty, _count + 1);
         }
     }
 
