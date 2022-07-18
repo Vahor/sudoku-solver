@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { Grid } from "../components/Grid";
 import toast, { Toaster } from "react-hot-toast";
 import { difficulties, Difficulty, generateEmptySquares, Sudoku } from "../utils/sudoku";
@@ -27,7 +27,9 @@ const Home: NextPage = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [animate, setAnimate] = React.useState<boolean>(false);
 
-  const updateSquare = (i: number, j: number, value: number, withSudoku: boolean = true) => {
+  const updateSquare = useCallback((i: number, j: number, value: number, withSudoku: boolean = true) => {
+    if (!value) 
+      value = 0;
     setSquares(squares => {
       const newSquares = squares.map(row => [...row]);
       newSquares[i]![j] = value;
@@ -36,9 +38,9 @@ const Home: NextPage = () => {
       }
       return newSquares;
     });
-  }
+  }, [sudoku]);
 
-  const updateSquareAnimation = (i: number, j: number, value: number) => updateSquare(i, j, value, false);
+  const updateSquareAnimation = useCallback((i: number, j: number, value: number) => updateSquare(i, j, value, false), [updateSquare]);
 
   const reset = () => {
     setLoading(true);
@@ -68,14 +70,15 @@ const Home: NextPage = () => {
     }
   }
 
-  const hint = async () => {
+  const hint = useCallback(async () => {
     if (loading) return;
 
     const loadingToast = toast.loading("Searching...", toastProps);
 
     setLoading(true);
     try {
-      sudoku.fillOneSquare(updateSquareAnimation);
+      const newSquare = await sudoku.fillOneSquare(updateSquareAnimation);
+      setInitial((initial) => [...initial, newSquare]);
       toast.remove(loadingToast);
       toast.success("Found!", toastProps);
     } catch (error) {
@@ -84,41 +87,50 @@ const Home: NextPage = () => {
       toast.remove(loadingToast);
       setLoading(false);
     }
-  }
+  }, [loading, updateSquareAnimation, sudoku, setInitial])
 
   const generate = async (difficulty: Difficulty) => {
     if (loading) return;
 
     const loadingToast = toast.loading("Generating...", toastProps);
-    try {
-
       setLoading(true);
       setInitial([]);
-      await sudoku.generate(difficulty).catch(() => {
+      await sudoku.generate(difficulty).then(() => {
+        setSquares(() => sudoku.getSquares().map(row => [...row]));
+        const newInitial: [number, number][] = [];
+        sudoku.getSquares().forEach((row, i) => {
+          row.forEach((value, j) => {
+            if (value) {
+              newInitial.push([i, j]);
+            }
+          });
+        }
+        );
+        setInitial(newInitial);
+        toast.success("Generated!", toastProps);
+      })
+      .catch(() => {
+        toast.remove(loadingToast);
         toast.error("Error generating", toastProps);
-      });
+      }).then(() => {
       setLoading(false);
       toast.remove(loadingToast);
-
-      setSquares(() => sudoku.getSquares().map(row => [...row]));
-      const newInitial: [number, number][] = [];
-      sudoku.getSquares().forEach((row, i) => {
-        row.forEach((value, j) => {
-          if (value) {
-            newInitial.push([i, j]);
-          }
-        });
-      }
-      );
-      setInitial(newInitial);
-      toast.success("Generated!", toastProps);
-    } finally {
-      toast.remove(loadingToast);
-      setLoading(false);
-    }
+    });
   }
-
-
+  
+  useEffect(() => {
+    // On keyboard click 'H', run hint
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "h") {
+        hint();
+        e.preventDefault();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [hint]);
 
   return (
     <>
@@ -139,7 +151,6 @@ const Home: NextPage = () => {
             updateSquare={updateSquare}
             sudoku={sudoku}
             initial={initial}
-            setInitial={setInitial}
           />
         </div>
 
@@ -162,7 +173,7 @@ const Home: NextPage = () => {
           <Button onClick={hint}
             disabled={loading}
           >
-            Hint
+            <u>H</u>int
           </Button>
 
           <Menu label="Generate"
@@ -200,6 +211,16 @@ const Home: NextPage = () => {
           </label>
 
         </div>
+
+        {/* <pre className="text-center text-gray-500 text-xs mt-4">
+          {sudoku.getSquares().map((row, i) => {
+            return row.map((value, j) => {
+              return value ? value : ".";
+            }
+            ).join(" ");
+          }
+          ).join("\n")}
+        </pre> */}
 
         <Toaster />
         <Vahor />

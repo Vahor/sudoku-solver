@@ -61,7 +61,7 @@ export class Sudoku {
     }
 
     public setSquares(squares: number[][]): void {
-        this.squares = squares;
+        this.squares = squares.map(row => [...row]);
         this.boxSize = Math.floor(Math.sqrt(squares.length));
 
         this.emptySquares = getAllEmptySquares(squares);
@@ -99,7 +99,8 @@ export class Sudoku {
         if (status) {
             this.emptySquares = this.emptySquares.filter(([x, y]) => x !== i || y !== j);
         } else {
-            this.emptySquares.push([i, j]);
+            // add in front
+            this.emptySquares.unshift([i, j]);
         }
     }
 
@@ -112,24 +113,53 @@ export class Sudoku {
         return this.emptySquares[index];
     }
 
-    public fillOneSquare(updateSquare?: (i: number, j: number, value: number) => void): void {
+    public async fillOneSquare(updateSquare?: (i: number, j: number, value: number) => void, test_solution: boolean = true, _count: number = 0): Promise<[number, number]> {
+        if (_count > this.squares.length * this.squares.length) {
+            throw new Error('No possible value for empty square');
+        }
+
         const [i, j] = this.getRandomEmptySquare()!;
 
         for (const value of values) {
             if (this.isValid(i, j, value)) {
                 this.squares[i]![j] = value;
                 this.updateExists(i, j, value, true);
+
+                if (test_solution) {
+                    const solution = await this.fake_solve();
+                    if (!solution) {
+                        // If solution is not found, set value back to 0 and try again.
+                        this.squares[i]![j] = 0;
+                        this.updateExists(i, j, value, false);
+                        continue;
+                    }
+                }
+
                 updateSquare?.(i, j, value);
-                return;
+                return [i, j];
             }
         }
-        throw new Error('No possible value for empty square');
+
+        return await this.fillOneSquare(updateSquare, test_solution, _count + 1);
+    }
+
+
+    public async fake_solve(): Promise<number[][] | null> {
+        const cloneSquares = this.squares.map(row => [...row]);
+        const solution = await this.solve();
+        if (solution) {
+            this.setSquares(cloneSquares);
+            return solution;
+        }
+        this.setSquares(cloneSquares);
+        return null;
     }
 
 
     public async solve(updateSquare?: (i: number, j: number, value: number) => void, startIndex: number = 0): Promise<number[][] | null> {
         if (updateSquare)
-            await sleep(50);
+            await sleep(1);
+
         const nextEmptySquare = this.getNextEmptySquare();
         if (!nextEmptySquare) {
             return this.squares;
@@ -142,7 +172,6 @@ export class Sudoku {
         for (let k = 0; k < startIndex; k++) {
             possibleValues.push(possibleValues.shift()!);
         }
-
 
         for (const value of possibleValues) {
             if (this.isValid(i, j, value)) {
@@ -157,7 +186,6 @@ export class Sudoku {
                 }
 
                 // backtrack
-
                 this.squares[i]![j] = 0;
                 this.updateExists(i, j, value, false);
 
@@ -174,7 +202,7 @@ export class Sudoku {
 
     public setSquare(i: number, j: number, value: number): void {
         // If value is not in values, set to 0.
-        if (!values.includes(value)) {
+        if (!value || !values.includes(value)) {
             value = 0;
         }
         this.squares[i]![j] = value;
@@ -182,7 +210,7 @@ export class Sudoku {
     }
 
     public async generate(difficulty: Difficulty, _count: number = 0): Promise<void> {
-        if (_count > 5000) {
+        if (_count > 500) {
             throw new Error('Cannot generate a valid sudoku');
         }
 
@@ -193,21 +221,20 @@ export class Sudoku {
             this.setSquares(generateEmptySquares(this.squares.length));
             // Fill empty squares
             for (let i = 0; i < toAdd; i++) {
-                this.fillOneSquare();
+                await this.fillOneSquare(undefined, false);
             }
             const squaresCopy = this.squares.map(row => [...row]);
 
             const solution = await this.solve();
             if (!solution) {
-                await this.generate(difficulty, _count + 1);
-                return;
+                return await this.generate(difficulty, _count + 1);
             }
 
             // If everything is ok, set the solution to the squares
             this.setSquares(squaresCopy);
-            
+
         } catch (e) {
-            await this.generate(difficulty, _count + 1);
+            return await this.generate(difficulty, _count + 1);
         }
     }
 
