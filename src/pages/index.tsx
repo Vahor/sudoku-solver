@@ -3,7 +3,7 @@ import Head from "next/head";
 import React, { useCallback, useEffect } from "react";
 import { Grid } from "../components/Grid";
 import toast, { Toaster } from "react-hot-toast";
-import { difficulties, Difficulty, generateEmptySquares, Sudoku } from "../utils/sudoku";
+import { difficulties, Difficulty, generateEmptySquares, Sudoku, sleep } from "../utils/sudoku";
 import { Vahor } from "../components/Vahor";
 import { Menu } from "../components/Menu";
 import { Button } from "../components/Button";
@@ -28,12 +28,12 @@ const Home: NextPage = () => {
   const [animate, setAnimate] = React.useState<boolean>(false);
 
   const updateSquare = useCallback((i: number, j: number, value: number, withSudoku: boolean = true) => {
-    if (!value) 
+    if (!value)
       value = 0;
     setSquares(squares => {
       const newSquares = squares.map(row => [...row]);
       newSquares[i]![j] = value;
-      if(withSudoku) {
+      if (withSudoku) {
         sudoku.setSquares(newSquares);
       }
       return newSquares;
@@ -74,11 +74,13 @@ const Home: NextPage = () => {
     if (loading) return;
 
     const loadingToast = toast.loading("Searching...", toastProps);
-
     setLoading(true);
+    await sleep(250);
+
     try {
-      const newSquare = await sudoku.fillOneSquare(updateSquareAnimation);
-      setInitial((initial) => [...initial, newSquare]);
+      const [i, j, value] = await sudoku.fillOneSquare();
+      setInitial((initial) => [...initial, [i, j]]);
+      updateSquare(i, j, value, false);
       toast.remove(loadingToast);
       toast.success("Found!", toastProps);
     } catch (error) {
@@ -87,37 +89,38 @@ const Home: NextPage = () => {
       toast.remove(loadingToast);
       setLoading(false);
     }
-  }, [loading, updateSquareAnimation, sudoku, setInitial])
+  }, [loading, sudoku, setInitial, updateSquare])
 
   const generate = async (difficulty: Difficulty) => {
     if (loading) return;
 
     const loadingToast = toast.loading("Generating...", toastProps);
-      setLoading(true);
-      setInitial([]);
-      await sudoku.generate(difficulty).then(() => {
-        setSquares(() => sudoku.getSquares().map(row => [...row]));
-        const newInitial: [number, number][] = [];
-        sudoku.getSquares().forEach((row, i) => {
-          row.forEach((value, j) => {
-            if (value) {
-              newInitial.push([i, j]);
-            }
-          });
-        }
-        );
-        setInitial(newInitial);
-        toast.success("Generated!", toastProps);
-      })
-      .catch(() => {
-        toast.remove(loadingToast);
-        toast.error("Error generating", toastProps);
-      }).then(() => {
+    setLoading(true);
+    setInitial([]);
+    await sleep(300);
+    await sudoku.generate(difficulty).then(() => {
+      setSquares(() => sudoku.getSquares().map(row => [...row]));
+      const newInitial: [number, number][] = [];
+      sudoku.getSquares().forEach((row, i) => {
+        row.forEach((value, j) => {
+          if (value) {
+            newInitial.push([i, j]);
+          }
+        });
+      }
+      );
+      setInitial(newInitial);
+      toast.success("Generated!", toastProps);
+    })
+    .catch(() => {
+      toast.remove(loadingToast);
+      toast.error("Error generating", toastProps);
+    }).then(() => {
       setLoading(false);
       toast.remove(loadingToast);
     });
   }
-  
+
   useEffect(() => {
     // On keyboard click 'H', run hint
     const handleKeyDown = (e: KeyboardEvent) => {

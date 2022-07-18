@@ -42,7 +42,7 @@ export const generateEmptySquares = (size: number = 9): number[][] => {
     return squares;
 }
 
-function sleep(ms: number) {
+export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -61,7 +61,7 @@ export class Sudoku {
     }
 
     public setSquares(squares: number[][]): void {
-        this.squares = squares.map(row => [...row]);
+        this.squares = [...squares.map(row => [...row])];
         this.boxSize = Math.floor(Math.sqrt(squares.length));
 
         this.emptySquares = getAllEmptySquares(squares);
@@ -113,7 +113,7 @@ export class Sudoku {
         return this.emptySquares[index];
     }
 
-    public async fillOneSquare(updateSquare?: (i: number, j: number, value: number) => void, test_solution: boolean = true, _count: number = 0): Promise<[number, number]> {
+    public async fillOneSquare(test_solution: boolean = true, _count: number = 0): Promise<[number, number, number]> {
         if (_count > this.squares.length * this.squares.length) {
             throw new Error('No possible value for empty square');
         }
@@ -134,24 +134,20 @@ export class Sudoku {
                         continue;
                     }
                 }
-
-                updateSquare?.(i, j, value);
-                return [i, j];
+                return [i, j, value];
             }
         }
 
-        return await this.fillOneSquare(updateSquare, test_solution, _count + 1);
+        return await this.fillOneSquare(test_solution, _count + 1);
     }
 
 
     public async fake_solve(): Promise<number[][] | null> {
-        const cloneSquares = this.squares.map(row => [...row]);
-        const solution = await this.solve();
+        const fakeSudoku = new Sudoku(this.getSquares());
+        const solution = await fakeSudoku.solve();
         if (solution) {
-            this.setSquares(cloneSquares);
             return solution;
         }
-        this.setSquares(cloneSquares);
         return null;
     }
 
@@ -217,7 +213,7 @@ export class Sudoku {
         this.updateExists(i, j, value, value !== 0);
     }
 
-    public async generate(difficulty: Difficulty, _start_date: number): Promise<void> {
+    public async generate(difficulty: Difficulty, _start_date?: number): Promise<void> {
         if (!_start_date) 
             _start_date = Date.now();
         
@@ -225,6 +221,7 @@ export class Sudoku {
         if (Date.now() - _start_date > time_limit) {
             this.setSquares(generateEmptySquares(this.squares.length));
             throw new Error('Time limit exceeded');
+        }
 
         try {
             const totalSquares = this.squares.length * this.squares.length;
@@ -252,6 +249,3 @@ export class Sudoku {
 
 
 }
-
-
-
