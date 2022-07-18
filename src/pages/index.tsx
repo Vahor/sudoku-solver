@@ -8,6 +8,7 @@ import { Vahor } from "../components/Vahor";
 import { Menu } from "../components/Menu";
 import { Button } from "../components/Button";
 import confetti from 'canvas-confetti';
+import { Timer } from "../components/Timer";
 
 const toastProps = {
   style: {
@@ -41,6 +42,7 @@ const Home: NextPage = () => {
   const [animate, setAnimate] = React.useState<boolean>(false);
   const [success, setSuccess] = React.useState<boolean>(false);
   const [showErrors, setShowErrors] = React.useState<boolean>(true);
+  const [startedAt, setStartedAt] = React.useState<number>(0);
 
   const checkSuccess = useCallback(async () => {
     if (!sudoku.getRandomEmptySquare() && errors.length === 0) {
@@ -69,9 +71,12 @@ const Home: NextPage = () => {
     checkSuccess();
   } , [checkSuccess, errors]);
 
+
   const updateSquare = useCallback((i: number, j: number, value: number, withSudoku: boolean = true) => {
     if (!value)
       value = 0;
+    if(startedAt === 0)
+      setStartedAt(Date.now());
     setSquares(squares => {
       const newSquares = squares.map(row => [...row]);
       newSquares[i]![j] = value;
@@ -80,7 +85,7 @@ const Home: NextPage = () => {
       }
       return newSquares;
     });
-  }, [sudoku]);
+  }, [sudoku, startedAt]);
 
   const updateSquareAnimation = useCallback((i: number, j: number, value: number) => updateSquare(i, j, value, false), [updateSquare]);
 
@@ -90,6 +95,7 @@ const Home: NextPage = () => {
     setSquares(() => newSquares);
     setInitial([]);
     sudoku.setSquares(newSquares);
+    setStartedAt(0);
     setLoading(false);
     setSuccess(false);
   }
@@ -239,8 +245,11 @@ const Home: NextPage = () => {
         <h1 className="text-pink-200 text-4xl md:text-5xl font-bold text-center fade-1">
           {success ? "Congratulations!" : "Sudoku"}
         </h1>
+        <div className="text-pink-50 fade-2">
+          <Timer startedAt={startedAt} running={!success} />
+        </div>
 
-        <div className={`mt-4 md:mt-8 ${(loading||success) ? "pointer-events-none" : ""}`}>
+      <div className={`mt-4 md:mt-8 ${(loading||success) ? "pointer-events-none" : ""}`}>
           <Grid
             squares={squares}
             updateSquare={updateSquare}
