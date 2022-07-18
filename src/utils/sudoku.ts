@@ -230,7 +230,7 @@ export class Sudoku {
             this.setSquares(generateEmptySquares(this.squares.length));
             // Fill empty squares
             for (let i = 0; i < toAdd; i++) {
-                await this.fillOneSquare(undefined, false);
+                await this.fillOneSquare(false);
             }
             const squaresCopy = this.squares.map(row => [...row]);
 
