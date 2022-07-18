@@ -1,16 +1,17 @@
 
+
 export const difficulties = {
     easy: {
-        empty: 40,
-    },
-    medium: {
         empty: 45,
     },
+    medium: {
+        empty: 50,
+    },
     hard: {
-        empty: 55,
+        empty: 60,
     },
     extreme: {
-        empty: 60,
+        empty: 65,
     }
 }
 
