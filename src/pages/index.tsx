@@ -40,7 +40,7 @@ const Home: NextPage = () => {
     });
   }, [sudoku]);
 
-  const updateSquareAnimation = useCallback((i: number, j: number, value: number) => animate && updateSquare(i, j, value, false), [updateSquare, animate]);
+  const updateSquareAnimation = useCallback((i: number, j: number, value: number) => updateSquare(i, j, value, false), [updateSquare]);
 
   const reset = () => {
     setLoading(true);
@@ -57,7 +57,7 @@ const Home: NextPage = () => {
     const loadingToast = toast.loading("Solving...", toastProps);
 
     setLoading(true);
-    const solution = await sudoku.solve(updateSquareAnimation);
+    const solution = await sudoku.solve(animate ? updateSquareAnimation : undefined);
     setLoading(false);
 
     toast.remove(loadingToast);
