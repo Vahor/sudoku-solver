@@ -12,9 +12,6 @@ export const difficulties = {
     },
     extreme: {
         empty: 65,
-    },
-    impossible: {
-        empty: 72,
     }
 }
 
