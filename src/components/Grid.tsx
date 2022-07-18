@@ -9,7 +9,7 @@ export interface GridProps {
     initial: [number, number][];
 }
 
-export const Grid = ({ squares, updateSquare,sudoku,initial }: GridProps) => {
+export const Grid = ({ squares, updateSquare, sudoku,initial }: GridProps) => {
 
     const size = squares.length;
     const squaresInABox = Math.floor(Math.sqrt(size));

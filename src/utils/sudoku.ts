@@ -210,7 +210,7 @@ export class Sudoku {
     }
 
     public async generate(difficulty: Difficulty, _count: number = 0): Promise<void> {
-        if (_count > 1000) {
+        if (_count > 500) {
             throw new Error('Cannot generate a valid sudoku');
         }
 
