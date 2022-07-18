@@ -66,10 +66,15 @@ const Home: NextPage = () => {
 
       setLoading(false);
 
-      event("success", {
-        category: "sudoku",
-        value: Date.now() - startedAt,
-      });
+      const timer = Date.now() - startedAt;
+
+      if (timer > 20_000) {
+        // I suppose that less than 20 seconds is not a success, just someone trying features
+        event("success", {
+          category: "sudoku",
+          value: timer,
+        });
+      }
 
     }
   }, [sudoku, errors, startedAt]);
