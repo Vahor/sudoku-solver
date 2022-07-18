@@ -12,6 +12,9 @@ export const difficulties = {
     },
     extreme: {
         empty: 65,
+    },
+    impossible: {
+        empty: 72,
     }
 }
 
@@ -114,12 +117,20 @@ export class Sudoku {
         return this.emptySquares[index];
     }
 
-    public async fillOneSquare(test_solution: boolean = true, _count: number = 0): Promise<[number, number, number]> {
+    public async fillOneSquare(test_solution: boolean = true, force_value?: number, _count: number = 0): Promise<[number, number, number]> {
         if (_count > this.squares.length * this.squares.length) {
             throw new Error('No possible value for empty square');
         }
 
         const [i, j] = this.getRandomEmptySquare()!;
+
+        if (force_value) {
+            if (this.isValid(i, j, force_value)) {
+                this.setSquare(i, j, force_value);
+                return [i, j, force_value];
+            }
+            return await this.fillOneSquare(test_solution, force_value, _count + 1);
+        }
 
         for (const value of values) {
             if (this.isValid(i, j, value)) {
@@ -139,7 +150,7 @@ export class Sudoku {
             }
         }
 
-        return await this.fillOneSquare(test_solution, _count + 1);
+        return await this.fillOneSquare(test_solution,force_value, _count + 1);
     }
 
 
@@ -271,9 +282,13 @@ export class Sudoku {
             const toAdd = totalSquares - difficulties[difficulty].empty;
             // Reset all squares to 0
             this.setSquares(generateEmptySquares(this.squares.length));
+            const neededValues = [...values];
             // Fill empty squares
             for (let i = 0; i < toAdd; i++) {
-                await this.fillOneSquare(false);
+                const value = neededValues.pop();
+                console.log(value);
+                console.log(neededValues);
+                await this.fillOneSquare(false, value);
             }
             const squaresCopy = this.squares.map(row => [...row]);
 
