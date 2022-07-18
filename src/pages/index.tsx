@@ -57,7 +57,7 @@ const Home: NextPage = () => {
     const loadingToast = toast.loading("Solving...", toastProps);
 
     setLoading(true);
-    const solution = await sudoku.solve(animate ? updateSquareAnimation : undefined);
+    const solution = await sudoku.solve(updateSquareAnimation);
     setLoading(false);
 
     toast.remove(loadingToast);
@@ -120,7 +120,6 @@ const Home: NextPage = () => {
       toast.remove(loadingToast);
     });
   }
-
   useEffect(() => {
     // On keyboard click 'H', run hint
     const handleKeyDown = (e: KeyboardEvent) => {
