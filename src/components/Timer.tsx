@@ -32,9 +32,6 @@ export const Timer = ({running,startedAt}: TimerProps) => {
         return n < 10 ? `0${n}` : n.toString();
     }
 
-    console.log(startedAt);
-    console.log(time);
-
     if  (startedAt === 0) {
         return <div className="text-center">
             <span className="text-2xl font-bold">00:00</span>

@@ -10,6 +10,8 @@ import { Button } from "../components/Button";
 import confetti from 'canvas-confetti';
 import { Timer } from "../components/Timer";
 
+import { event } from "nextjs-google-analytics";
+
 const toastProps = {
   style: {
     background: "#262626", // neutral-400
@@ -64,16 +66,25 @@ const Home: NextPage = () => {
 
       setLoading(false);
 
+      event("success", {
+        category: "sudoku",
+        value: Date.now() - startedAt,
+      });
+
     }
-  }, [sudoku, errors]);
+  }, [sudoku, errors, startedAt]);
   
   useEffect(() => {
     checkSuccess();
   } , [checkSuccess, errors]);
 
   const checkStart = useCallback(async () => {
-    if(startedAt === 0)
+    if(startedAt === 0) {
       setStartedAt(Date.now());
+      event("start", {
+        category: "sudoku",
+      });
+    }
   }
   , [startedAt]);
 
