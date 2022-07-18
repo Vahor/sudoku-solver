@@ -27,6 +27,8 @@ const meta = {
   twitterUsername: "@Vahor_",
 }
 
+const EMPTY_ARRAY: any[] = [];
+
 
 const Home: NextPage = () => {
   const sudoku = React.useMemo(() => new Sudoku(generateEmptySquares()), []);
@@ -36,6 +38,7 @@ const Home: NextPage = () => {
   const errors = React.useMemo<[number, number][]>(() => sudoku.getErrorsPositions(), [sudoku, squares]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [animate, setAnimate] = React.useState<boolean>(false);
+  const [showErrors, setShowErrors] = React.useState<boolean>(true);
 
   const updateSquare = useCallback((i: number, j: number, value: number, withSudoku: boolean = true) => {
     if (!value)
@@ -213,7 +216,7 @@ const Home: NextPage = () => {
             updateSquare={updateSquare}
             sudoku={sudoku}
             initial={initial}
-            errors={errors}
+            errors={showErrors ? errors : EMPTY_ARRAY}
           />
         </div>
 
@@ -262,7 +265,7 @@ const Home: NextPage = () => {
           </Menu>
         </div>
 
-        <div className="mt-2 fade-3">
+        <div className="mt-2 md:mt-4 fade-3 flex justify-center gap-4">
           <label className={`flex items-center relative mb-4 ${loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
             <input type="checkbox" className="sr-only"
               checked={animate}
@@ -271,6 +274,16 @@ const Home: NextPage = () => {
             />
             <div className="toggle-bg bg-gray-200 border-2 border-gray-200 h-6 w-11 rounded-full"></div>
             <span className="ml-3 text-pink-300 text-sm font-medium">Animate</span>
+          </label>
+
+          <label className={`flex items-center relative mb-4 ${loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
+            <input type="checkbox" className="sr-only"
+              checked={showErrors}
+              disabled={loading}
+              onChange={(e) => setShowErrors(e.target.checked)}
+            />
+            <div className="toggle-bg bg-gray-200 border-2 border-gray-200 h-6 w-11 rounded-full"></div>
+            <span className="ml-3 text-pink-300 text-sm font-medium">Show Errors</span>
           </label>
 
         </div>
