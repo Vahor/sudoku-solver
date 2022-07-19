@@ -17,6 +17,6 @@ export const ThemeSwitcher = ({ }: ThemeSwitcherProps) => {
             onChange={(e) => setCurrentTheme(e.target.checked ? "dark" : "light")}
         />
         <div className="toggle-bg bg-gray-700 dark:bg-gray-200 border-2 border-gray-700 dark:border-gray-200 h-6 w-11 rounded-full"></div>
-        <span className="ml-3 text-neutral-700 dark:text-pink-300 text-sm font-medium">Dark Mode</span>
+        <span className="ml-2 md:ml-3 text-neutral-700 dark:text-pink-300 text-sm font-medium">Dark Mode</span>
     </label>
 }

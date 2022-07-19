@@ -51,7 +51,7 @@ const Home: NextPage = () => {
 
       setLoading(true);
       setSuccess(true);
-      
+
       if(document.activeElement instanceof HTMLInputElement) {
         document.activeElement.blur();
       }
@@ -287,7 +287,7 @@ const Home: NextPage = () => {
             />
           </div>
 
-          <div className="mt-2 md:mt-4 flex gap-4 fade-2">
+          <div className="mt-4 flex gap-4 fade-2">
 
             <Button
               onClick={reset}
@@ -332,7 +332,7 @@ const Home: NextPage = () => {
             </Menu>
           </div>
 
-          <div className="mt-2 md:mt-4 fade-3 flex justify-center gap-4">
+          <div className="mt-4 fade-3 flex justify-center gap-4">
             <label className={`flex items-center relative mb-4 ${loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
               <input type="checkbox" className="sr-only"
                 checked={animate}
@@ -340,7 +340,7 @@ const Home: NextPage = () => {
                 onChange={(e) => setAnimate(e.target.checked)}
               />
               <div className="toggle-bg bg-gray-700 dark:bg-gray-200 border-2 border-gray-700 dark:border-gray-200 h-6 w-11 rounded-full"></div>
-              <span className="ml-3 text-neutral-700 dark:text-pink-300 text-sm font-medium">Animate</span>
+              <span className="ml-2 md:ml-3 text-neutral-700 dark:text-pink-300 text-sm font-medium">Animate</span>
             </label>
 
             <label className={`flex items-center relative mb-4 ${loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
@@ -350,7 +350,7 @@ const Home: NextPage = () => {
                 onChange={(e) => setShowErrors(e.target.checked)}
               />
               <div className="toggle-bg bg-gray-700 dark:bg-gray-200 border-2 border-gray-700 dark:border-gray-200 h-6 w-11 rounded-full"></div>
-              <span className="ml-3 text-neutral-700 dark:text-pink-300 text-sm font-medium">Show Errors</span>
+              <span className="ml-2 md:ml-3 text-neutral-700 dark:text-pink-300 text-sm font-medium">Show Errors</span>
             </label>
 
             <ThemeSwitcher />

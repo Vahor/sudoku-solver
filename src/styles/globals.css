@@ -59,3 +59,8 @@ input:checked + .toggle-bg:after {
 input:checked + .toggle-bg {
     @apply bg-pink-600 border-pink-600;
 }
+
+/* Reset iOs */
+input {
+    border-radius: 0;
+}
