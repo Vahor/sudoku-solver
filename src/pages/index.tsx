@@ -198,6 +198,7 @@ const Home: NextPage = () => {
     })
       .catch(() => {
         toast.error("Error generating");
+        reset();
       }).then(() => {
         setSuccess(false);
         setLoading(false);

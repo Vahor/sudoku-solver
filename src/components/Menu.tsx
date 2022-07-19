@@ -10,9 +10,26 @@ export interface MenuProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonEle
 export const Menu = ({children,label, ...props}: MenuProps) => {
     const [open, setOpen] = React.useState(false)
     const close = () => setOpen(false)
+
+    // close when clicking outside of the menu
+    React.useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            if(!open) return;
+            const target = e.target as HTMLElement;
+            if (!target.closest('.menu')) {
+                close()
+            }
+        }
+        document.addEventListener('click', handleClick)
+        return () => document.removeEventListener('click', handleClick)
+    }, [open])
+
     return <div className='relative'>
         <Button 
-            onClick={() => setOpen(!open)}
+            onClick={(e) => {
+                e.stopPropagation()
+                setOpen(!open)}
+            }
             {...props}
         >
             {label}
@@ -21,7 +38,7 @@ export const Menu = ({children,label, ...props}: MenuProps) => {
       </svg>
       </Button>
       {open &&
-        <div className="absolute bottom-full right-0 mb-2 w-56 rounded-md shadow-lg bg-secondary-600 ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <div className="menu absolute bottom-full right-0 mb-2 w-56 rounded-md shadow-lg bg-secondary-600 ring-1 ring-black ring-opacity-5 focus:outline-none">
          {children(close)}
         </div>
         }
