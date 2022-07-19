@@ -3,7 +3,15 @@
 @tailwind utilities;
 
 body {
-    @apply antialiased bg-secondary-800;
+    @apply antialiased;
+}
+
+.dark body {
+    @apply  bg-secondary-800
+}
+
+.light body {
+    @apply  bg-pink-50
 }
 
 .fade-1 {

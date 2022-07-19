@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import React, { useCallback, useEffect } from "react";
 import { Grid } from "../components/Grid";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { difficulties, Difficulty, generateEmptySquares, Sudoku, sleep } from "../utils/sudoku";
 import { Vahor } from "../components/Vahor";
 import { Menu } from "../components/Menu";
@@ -11,17 +11,11 @@ import confetti from 'canvas-confetti';
 import { Timer } from "../components/Timer";
 
 import { event } from "nextjs-google-analytics";
+import { ThemeProvider } from "next-themes";
+import { ThemeSwitcher } from "../components/ThemeSwitcher";
+import { ThemedToaster } from "../components/ThemedToaster";
 
-const toastProps = {
-  style: {
-    background: "#262626", // neutral-400
-    color: "#FACEE7", // pink-200
-  },
-  iconTheme: {
-    primary: "#FACEE7",
-    secondary: "#262626",
-  },
-}
+
 
 const meta = {
   title: "Sudoku - Vahor",
@@ -45,6 +39,7 @@ const Home: NextPage = () => {
   const [success, setSuccess] = React.useState<boolean>(false);
   const [showErrors, setShowErrors] = React.useState<boolean>(true);
   const [startedAt, setStartedAt] = React.useState<number>(0);
+
 
   const checkSuccess = useCallback(async () => {
     if (!sudoku.getRandomEmptySquare() && errors.length === 0) {
@@ -74,20 +69,20 @@ const Home: NextPage = () => {
 
     }
   }, [sudoku, errors, startedAt]);
-  
+
   useEffect(() => {
     checkSuccess();
-  } , [checkSuccess, errors]);
+  }, [checkSuccess, errors]);
 
   const checkStart = useCallback(async (force: boolean = false) => {
-    if(force || startedAt === 0) {
+    if (force || startedAt === 0) {
       setStartedAt(Date.now());
       event("start", {
         category: "sudoku",
       });
     }
   }
-  , [startedAt]);
+    , [startedAt]);
 
 
 
@@ -121,11 +116,11 @@ const Home: NextPage = () => {
   const solve = async () => {
     if (loading || success) return;
     if (errors.length !== 0) {
-      toast.error("There are errors in the puzzle", toastProps);
+      toast.error("There are errors in the puzzle");
       return;
     }
 
-    const loadingToast = toast.loading("Solving...", toastProps);
+    const loadingToast = toast.loading("Solving...");
     checkStart();
     setLoading(true);
     const solution = await sudoku.solve(animate ? updateSquareAnimation : undefined);
@@ -135,21 +130,21 @@ const Home: NextPage = () => {
 
     if (solution) {
       setSquares(() => solution.map(row => [...row]));
-      toast.success("Solved!", toastProps);
+      toast.success("Solved!");
     } else {
-      toast.error("No solution found", toastProps);
+      toast.error("No solution found");
     }
   }
 
   const hint = useCallback(async () => {
-    if (loading||success) return;
+    if (loading || success) return;
     if (errors.length !== 0) {
-      toast.error("There are errors in the puzzle", toastProps);
+      toast.error("There are errors in the puzzle");
       return;
     }
 
 
-    const loadingToast = toast.loading("Searching...", toastProps);
+    const loadingToast = toast.loading("Searching...");
 
     checkStart();
     setLoading(true);
@@ -160,19 +155,19 @@ const Home: NextPage = () => {
       setInitial((initial) => [...initial, [i, j]]);
       updateSquare(i, j, value, false);
       toast.remove(loadingToast);
-      toast.success("Found!", toastProps);
+      toast.success("Found!");
     } catch (error) {
-      toast.error("No hint found", toastProps);
+      toast.error("No hint found");
     } finally {
       toast.remove(loadingToast);
       setLoading(false);
     }
-  }, [loading, sudoku, setInitial, updateSquare, errors, checkStart,success]);
+  }, [loading, sudoku, setInitial, updateSquare, errors, checkStart, success]);
 
   const generate = async (difficulty: Difficulty) => {
     if (loading) return;
 
-    const loadingToast = toast.loading("Generating...", toastProps);
+    const loadingToast = toast.loading("Generating...");
     setLoading(true);
     setInitial([]);
     await sleep(300);
@@ -188,11 +183,11 @@ const Home: NextPage = () => {
       }
       );
       setInitial(newInitial);
-      toast.success("Generated!", toastProps);
+      toast.success("Generated!");
       checkStart(true);
     })
       .catch(() => {
-        toast.error("Error generating", toastProps);
+        toast.error("Error generating");
       }).then(() => {
         setSuccess(false);
         setLoading(false);
@@ -263,93 +258,96 @@ const Home: NextPage = () => {
       </Head>
 
 
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-pink-200 text-4xl md:text-5xl font-bold text-center fade-1">
-          {success ? "Congratulations!" : "Sudoku"}
-        </h1>
-        <div className="text-pink-50 fade-2">
-          <Timer startedAt={startedAt} running={!success} />
-        </div>
+      <ThemeProvider attribute="class" defaultTheme="dark">
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <h1 className="text-neutral-800 dark:text-pink-200 text-4xl md:text-5xl font-bold text-center fade-1">
+            {success ? "Congratulations!" : "Sudoku"}
+          </h1>
+          <div className="text-neutral-700 dark:text-pink-50 fade-2">
+            <Timer startedAt={startedAt} running={!success} />
+          </div>
 
-      <div className={`mt-4 md:mt-8 ${(loading||success) ? "pointer-events-none" : ""}`}>
-          <Grid
-            squares={squares}
-            updateSquare={updateSquare}
-            sudoku={sudoku}
-            initial={initial}
-            errors={showErrors ? errors : EMPTY_ARRAY}
-          />
-        </div>
-
-        <div className="mt-2 md:mt-4 flex gap-4 fade-2">
-
-          <Button
-            onClick={reset}
-            disabled={loading}
-          >
-            Reset
-          </Button>
-
-
-          <Button onClick={solve}
-            disabled={loading || success}
-          >
-            Solve
-          </Button>
-
-          <Button onClick={hint}
-            disabled={loading || success}
-          >
-            <u>H</u>int
-          </Button>
-
-          <Menu label="Generate"
-            disabled={loading}>
-            {(close) =>
-              <ul>
-                {Object.keys(difficulties).map((difficulty) => {
-                  return (
-                    <li
-                      key={difficulty}
-                      className="p-2 text-white outline-none cursor-pointer hover:bg-secondary-700 capitalize"
-                      onClick={() => {
-                        close();
-                        generate(difficulty as Difficulty);
-                      }}
-                    >
-                      {difficulty}
-                    </li>
-                  )
-                })}
-              </ul>
-            }
-          </Menu>
-        </div>
-
-        <div className="mt-2 md:mt-4 fade-3 flex justify-center gap-4">
-          <label className={`flex items-center relative mb-4 ${loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
-            <input type="checkbox" className="sr-only"
-              checked={animate}
-              disabled={loading}
-              onChange={(e) => setAnimate(e.target.checked)}
+          <div className={`mt-4 md:mt-8 ${(loading || success) ? "pointer-events-none" : ""}`}>
+            <Grid
+              squares={squares}
+              updateSquare={updateSquare}
+              sudoku={sudoku}
+              initial={initial}
+              errors={showErrors ? errors : EMPTY_ARRAY}
             />
-            <div className="toggle-bg bg-gray-200 border-2 border-gray-200 h-6 w-11 rounded-full"></div>
-            <span className="ml-3 text-pink-300 text-sm font-medium">Animate</span>
-          </label>
+          </div>
 
-          <label className={`flex items-center relative mb-4 ${loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
-            <input type="checkbox" className="sr-only"
-              checked={showErrors}
+          <div className="mt-2 md:mt-4 flex gap-4 fade-2">
+
+            <Button
+              onClick={reset}
               disabled={loading}
-              onChange={(e) => setShowErrors(e.target.checked)}
-            />
-            <div className="toggle-bg bg-gray-200 border-2 border-gray-200 h-6 w-11 rounded-full"></div>
-            <span className="ml-3 text-pink-300 text-sm font-medium">Show Errors</span>
-          </label>
+            >
+              Reset
+            </Button>
 
-        </div>
 
-        {/* <pre className="text-center text-gray-500 text-xs mt-4">
+            <Button onClick={solve}
+              disabled={loading || success}
+            >
+              Solve
+            </Button>
+
+            <Button onClick={hint}
+              disabled={loading || success}
+            >
+              <u>H</u>int
+            </Button>
+
+            <Menu label="Generate"
+              disabled={loading}>
+              {(close) =>
+                <ul>
+                  {Object.keys(difficulties).map((difficulty) => {
+                    return (
+                      <li
+                        key={difficulty}
+                        className="p-2 text-white outline-none cursor-pointer hover:bg-secondary-700 capitalize"
+                        onClick={() => {
+                          close();
+                          generate(difficulty as Difficulty);
+                        }}
+                      >
+                        {difficulty}
+                      </li>
+                    )
+                  })}
+                </ul>
+              }
+            </Menu>
+          </div>
+
+          <div className="mt-2 md:mt-4 fade-3 flex justify-center gap-4">
+            <label className={`flex items-center relative mb-4 ${loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
+              <input type="checkbox" className="sr-only"
+                checked={animate}
+                disabled={loading}
+                onChange={(e) => setAnimate(e.target.checked)}
+              />
+              <div className="toggle-bg bg-gray-700 dark:bg-gray-200 border-2 border-gray-700 dark:border-gray-200 h-6 w-11 rounded-full"></div>
+              <span className="ml-3 text-neutral-700 dark:text-pink-300 text-sm font-medium">Animate</span>
+            </label>
+
+            <label className={`flex items-center relative mb-4 ${loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
+              <input type="checkbox" className="sr-only"
+                checked={showErrors}
+                disabled={loading}
+                onChange={(e) => setShowErrors(e.target.checked)}
+              />
+              <div className="toggle-bg bg-gray-700 dark:bg-gray-200 border-2 border-gray-700 dark:border-gray-200 h-6 w-11 rounded-full"></div>
+              <span className="ml-3 text-neutral-700 dark:text-pink-300 text-sm font-medium">Show Errors</span>
+            </label>
+
+            <ThemeSwitcher />
+
+          </div>
+
+          {/* <pre className="text-center text-gray-500 text-xs mt-4">
           {sudoku.getSquares().map((row, i) => {
             return row.map((value, j) => {
               return value ? value : ".";
@@ -359,10 +357,12 @@ const Home: NextPage = () => {
           ).join("\n")}
         </pre> */}
 
-        <Toaster />
-        <Vahor />
+          
+          <Vahor />
+          <ThemedToaster />
 
-      </div>
+        </div>
+      </ThemeProvider>
 
 
 
