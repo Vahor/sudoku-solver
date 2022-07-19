@@ -10,7 +10,6 @@ import { Button } from "../components/Button";
 import confetti from 'canvas-confetti';
 import { Timer } from "../components/Timer";
 
-import { event } from "nextjs-google-analytics";
 import { ThemeProvider } from "next-themes";
 import { ThemeSwitcher } from "../components/ThemeSwitcher";
 import { ThemedToaster } from "../components/ThemedToaster";
@@ -23,6 +22,13 @@ const meta = {
   image: "https://sudoku.vahor.fr/banner.png",
   url: "https://sudoku.vahor.fr",
   twitterUsername: "@Vahor_",
+}
+
+const unami = (name: string) => {
+  if(typeof window !== "undefined") {
+    // @ts-ignore
+    window.umami(name);
+  }
 }
 
 const EMPTY_ARRAY: any[] = [];
@@ -71,14 +77,10 @@ const Home: NextPage = () => {
 
       setLoading(false);
 
-      const timer = Date.now() - startedAt;
-      event("success", {
-        category: "sudoku",
-        value: timer,
-      });
+      unami("success");
 
     }
-  }, [sudoku, errors, startedAt, success]);
+  }, [sudoku, errors, success]);
 
   useEffect(() => {
     checkSuccess();
@@ -87,9 +89,7 @@ const Home: NextPage = () => {
   const checkStart = useCallback(async (force: boolean = false) => {
     if (force || startedAt === 0) {
       setStartedAt(Date.now());
-      event("start", {
-        category: "sudoku",
-      });
+      unami("start");
     }
   }
     , [startedAt]);
