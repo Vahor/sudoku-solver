@@ -42,9 +42,19 @@ const Home: NextPage = () => {
 
 
   const checkSuccess = useCallback(async () => {
-    if (!sudoku.getRandomEmptySquare() && errors.length === 0) {
+    if (success) return;
+    if (!sudoku.getRandomEmptySquare()) {
+      if (errors.length !== 0) {
+        toast.error("There are errors in the puzzle");
+        return;
+      }
+
       setLoading(true);
       setSuccess(true);
+      
+      if(document.activeElement instanceof HTMLInputElement) {
+        document.activeElement.blur();
+      }
 
       confetti({
         particleCount: 100,
@@ -68,7 +78,7 @@ const Home: NextPage = () => {
       });
 
     }
-  }, [sudoku, errors, startedAt]);
+  }, [sudoku, errors, startedAt, success]);
 
   useEffect(() => {
     checkSuccess();
