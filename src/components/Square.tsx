@@ -29,7 +29,7 @@ export const Square = ({ value, updateSquare, i, j,isInitial,isValid }: SquarePr
     const customClasses = isValid ?
          isInitial ? "bg-neutral-800 dark:bg-neutral-100 hover:bg-neutral-700 dark:hover:bg-neutral-200 text-white dark:text-neutral-900" : 
             "font-bold bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-900 dark:text-white " 
-         : "bg-pink-700 text-neutral-100 hover:bg-pink-800";
+         : "bg-pink-700 text-neutral-100 hover:bg-pink-800 text-white";
 
     const borderClassesY = i % 3 === 0 ? "mt-1" : "";
     const borderClassesX = j % 3 === 0 ? "ml-1" : "";
@@ -43,8 +43,7 @@ export const Square = ({ value, updateSquare, i, j,isInitial,isValid }: SquarePr
             min="1"
             max="9"
             onChange={handleChange}
-            className={`h-8 w-8 md:h-12 md:w-12 fade-2 outline-none border border-neutral-400 dark:border-neutral-600
-             text-center transition-background ease-in-out ${customClasses} duration-100 ${borderClassesY} ${borderClassesX}`}
+            className={`h-8 w-8 md:h-12 md:w-12 fade-2 outline-none border border-neutral-400 dark:border-neutral-600 text-center transition-background ease-in-out ${customClasses} duration-100 ${borderClassesY} ${borderClassesX}`}
             style={{
                 animationDuration: `${randomAnimationDuration}s!important`,
             }}
