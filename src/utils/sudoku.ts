@@ -287,7 +287,6 @@ export class Sudoku {
             }
 
             const squaresCopy = this.squares.map(row => [...row]);
-            console.table(squaresCopy);
 
             const solution = await this.solve();
             if (!solution) {

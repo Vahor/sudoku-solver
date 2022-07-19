@@ -51,7 +51,7 @@ export const Grid = ({ squares, updateSquare, sudoku,initial,errors }: GridProps
                     return (<div key={i} >
                         {Array(boxPerRow).fill(null).map((_, j) => {
                             return (
-                                <div key={j} className={`h-24 w-24 md:h-36 md:w-36 border border-neutral-400`}/>
+                                <div key={j} className={`ml-1 mt-1 h-24 w-24 md:h-[9rem] md:w-[9rem] border border-neutral-700 dark:border-neutral-300`}/>
                             );
                         })}
                     </div>)

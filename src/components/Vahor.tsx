@@ -8,7 +8,7 @@ export const Vahor = ({}: VahorProps) => {
         target="_blank"
         rel="noopener noreferrer"
         href="https://github.com/Vahor"
-        className='text-pink-200 text-lg md:text-xl font-bold text-center fade-1'
+        className='text-neutral-700 dark:text-pink-200 text-lg md:text-xl font-bold text-center fade-1'
     >
             Made by Vahor
           </a>
